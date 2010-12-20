@@ -9,7 +9,7 @@ import scala.collection.JavaConversions._
 import java.util.{List => jList, ArrayList => jArrayList}
 
 class EvolutionaryContainerLoading(
-			 selectionStrategy: SelectionStrategy[jList[Int]],
+			 selectionStrategy: SelectionStrategy[_ >: jList[Int]],
              populationSize: Int,
              eliteCount: Int,
              generationCount: Int,
