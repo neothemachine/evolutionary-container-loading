@@ -30,7 +30,7 @@ class EvolutionaryContainerLoading(
 		
 		val pipeline = new EvolutionPipeline(operators)
 		
-		val candidateFactory = new ListPermutationFactory(problem.getBoxIndices)
+		val candidateFactory = new ListPermutationFactory(problem.getBoxes.map(_.id).toList)
 		
 		val engine = new GenerationalEvolutionEngine[jList[Int]](
 				candidateFactory,

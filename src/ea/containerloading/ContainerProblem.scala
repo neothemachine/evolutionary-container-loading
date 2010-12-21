@@ -1,17 +1,38 @@
 package ea.containerloading
 
-class ContainerProblem(containerSize: Dimension, boxes: List[(Int /*count*/, Dimension)]) {
+case class Dimension(width: Int, height: Int, depth: Int)
+case class Box(id: Int, size: Dimension)
+case class Container(size: Dimension)
+
+class ContainerProblem(container: Container, boxSizeFrequencies: Map[Dimension, Int]) {
 	
-	def getContainerSize = containerSize
+	def this(containerSize: Dimension, boxSizeFrequencies: Map[Dimension, Int]) =
+		this(Container(containerSize), boxSizeFrequencies)
+		
+	private val boxIds = 0 to (boxSizeFrequencies.values.sum - 1)
 	
-	def getBoxes = boxes
-	
-	def getBoxIndices = 0 to boxes.map(_._1).sum
-	
-	def getBoxDimension(index: Int): Dimension = {
-		return this.boxes(calculateOriginalBoxIndices()(index))._2
+	/**
+	 * weist jeder boxId eine Box zu
+	 */
+	private val boxIndexMapping: Map[Int, Box] = {
+		
+		val boxReferences: List[Int] = calculateOriginalBoxIndices
+		val boxes = boxSizeFrequencies.keys.toList
+		// TODO geht doch sicher auch eleganter...
+		val mapping = scala.collection.mutable.Map[Int, Box]()
+		boxIds foreach {id => 
+			mapping += (id -> Box(id, boxes(boxReferences(id))))
+		}
+		Map(mapping.toList:_*)		
 	}
 	
+	private val boxes = boxIndexMapping.values 
+	
+	def getContainer = container
+	def getBoxSizeFrequencies = boxSizeFrequencies
+	def getBoxes = boxes
+	def getBox(id: Int): Box = boxIndexMapping(id)
+			
 	/**
 	 * Boxes of same type (dimension) get same indices
 	 * First index is 0
@@ -20,14 +41,13 @@ class ContainerProblem(containerSize: Dimension, boxes: List[(Int /*count*/, Dim
 	 */
 	private def calculateOriginalBoxIndices(): List[Int] = {
 		var indices: List[Int] = Nil
-		val boxCounts = this.boxes.map(_._1)
 		
-		boxCounts foreach { boxCount => 
+		this.boxSizeFrequencies.foreach { boxCount => 
 			val currentBoxIndex = indices match {
 				case Nil        => 0
 				case head::tail => head + 1
 			}
-			val newBoxes = List.fill(boxCount)(currentBoxIndex)
+			val newBoxes = List.fill(boxCount._2)(currentBoxIndex)
 			indices = newBoxes ::: indices
 		}
 		
