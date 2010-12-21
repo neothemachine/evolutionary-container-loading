@@ -35,7 +35,7 @@ class EvolutionaryContainerLoading(
 		val engine = new GenerationalEvolutionEngine[jList[Int]](
 				candidateFactory,
 				pipeline,
-				new PackingEvaluator(problem),
+				new CachingFitnessEvaluator(new PackingEvaluator(problem)),
 				selectionStrategy,
 				new MersenneTwisterRNG
 				)

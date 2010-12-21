@@ -24,7 +24,9 @@ object Main {
 		
 		runner.runEvolution(problem,
 			listener = Some(popData => {
-				println(popData.getGenerationNumber + " " + popData.getBestCandidateFitness)
+				println(popData.getGenerationNumber + " " +
+						popData.getBestCandidateFitness + " " + 
+						popData.getBestCandidate)
 			})
 		)
 		
