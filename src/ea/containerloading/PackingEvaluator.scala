@@ -8,7 +8,7 @@ import org.uncommons.maths.random.MersenneTwisterRNG
 class PackingEvaluator(problem: ContainerProblem) extends FitnessEvaluator[jList[Int]] {
 
 	def getFitness(candidate: jList[Int], population: jList[_ <: jList[Int]]): Double = {
-		return new MersenneTwisterRNG().nextInt.abs		
+		return candidate.take(5).sum
 	}
 	
 	def isNatural(): Boolean = true

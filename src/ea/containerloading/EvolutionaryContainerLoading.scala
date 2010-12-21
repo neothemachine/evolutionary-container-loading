@@ -18,7 +18,16 @@ class EvolutionaryContainerLoading(
 	
 	assert(crossover || mutation)
 	
-	def runEvolution(problem: ContainerProblem, listener: Option[EvolutionObserver[jList[Int]]]): jList[Int] = {
+	def runEvolution(problem: ContainerProblem, listener: (PopulationData[_ <: jList[Int]]) => Unit): jList[Int] = 
+		runEvolution(problem, Some(
+			new EvolutionObserver[jList[Int]] {
+				def populationUpdate(data: PopulationData[_ <: jList[Int]]) = {
+					listener(data)
+				}
+			}
+		))
+	
+	def runEvolution(problem: ContainerProblem, listener: Option[EvolutionObserver[jList[Int]]] = None): jList[Int] = {
 		
 		var operators = (crossover, mutation) match {
 			case (true, false) => List(new ListOrderCrossover[Int])
@@ -29,7 +38,7 @@ class EvolutionaryContainerLoading(
 		
 		val pipeline = new EvolutionPipeline(operators)
 		
-		val candidateFactory = new ListPermutationFactory(new jArrayList(problem.getBoxIds))
+		val candidateFactory = new ListPermutationFactory(problem.getBoxIndices)
 		
 		val engine = new GenerationalEvolutionEngine[jList[Int]](
 				candidateFactory,
