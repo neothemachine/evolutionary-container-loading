@@ -23,9 +23,9 @@ object Main {
 				mutation = true)
 		
 		runner.runEvolution(problem,
-			listener = (data) => {
-				println(data.getGenerationNumber + " " + data.getBestCandidateFitness)
-			}
+			listener = Some(popData => {
+				println(popData.getGenerationNumber + " " + popData.getBestCandidateFitness)
+			})
 		)
 		
 	}

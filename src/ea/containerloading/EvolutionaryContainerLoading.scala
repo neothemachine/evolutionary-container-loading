@@ -5,6 +5,7 @@ import org.uncommons.watchmaker.framework.operators._
 import org.uncommons.watchmaker.framework.factories._
 import org.uncommons.watchmaker.framework.termination._
 import org.uncommons.maths.random._
+import ea.watchmaker.Implicits._
 import scala.collection.JavaConversions._
 import java.util.{List => jList, ArrayList => jArrayList}
 
@@ -18,16 +19,7 @@ class EvolutionaryContainerLoading(
 	
 	assert(crossover || mutation)
 	
-	def runEvolution(problem: ContainerProblem, listener: (PopulationData[_ <: jList[Int]]) => Unit): jList[Int] = 
-		runEvolution(problem, Some(
-			new EvolutionObserver[jList[Int]] {
-				def populationUpdate(data: PopulationData[_ <: jList[Int]]) = {
-					listener(data)
-				}
-			}
-		))
-	
-	def runEvolution(problem: ContainerProblem, listener: Option[EvolutionObserver[jList[Int]]] = None): jList[Int] = {
+	def runEvolution(problem: ContainerProblem, listener: Option[(PopulationData[_ <: jList[Int]]) => Unit] = None): jList[Int] = {
 		
 		var operators = (crossover, mutation) match {
 			case (true, false) => List(new ListOrderCrossover[Int])
