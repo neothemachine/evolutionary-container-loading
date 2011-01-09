@@ -1,12 +1,11 @@
 package ea.containerloading
 
-case class Dimension(width: Int, height: Int, depth: Int)
-case class Box(id: Int, size: Dimension)
-case class Container(size: Dimension)
+case class Box(id: Int, size: Dimension3D)
+case class Container(size: Dimension3D)
 
-class ContainerProblem(container: Container, boxSizeFrequencies: Map[Dimension, Int]) {
+class ContainerProblem(container: Container, boxSizeFrequencies: Map[Dimension3D, Int]) {
 	
-	def this(containerSize: Dimension, boxSizeFrequencies: Map[Dimension, Int]) =
+	def this(containerSize: Dimension3D, boxSizeFrequencies: Map[Dimension3D, Int]) =
 		this(Container(containerSize), boxSizeFrequencies)
 		
 	private val boxIds = 0 to (boxSizeFrequencies.values.sum - 1)

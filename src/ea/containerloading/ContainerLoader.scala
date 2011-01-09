@@ -1,12 +1,81 @@
 package ea.containerloading
 
+import javax.media.j3d._
+import javax.vecmath._
+import util.control.Breaks._
+
 object ContainerLoader {
 	
-	def load(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
+	/**
+	 * Beladung vom Container mit Layer-Ansatz (relativ langsam und speicherintensiv)
+	 * 
+	 * Eine Höhenkarte (Layer) wird als 2-Dimensionales Array gepflegt, sodass immer
+	 * Positionen für Kisten gesucht werden, die von oben "drauffallen" können.
+	 * Eine gültige Position für eine Kiste ist eine Fläche in der Karte mit der selben Höhe
+	 * und mit Größe der Box.
+	 * 
+	 * Vorteile:
+	 * - Kisten haben keine Hohlräume unter sich
+	 * - Kisten werden immer von oben beladen
+	 * 
+	 * Nachteile:
+	 * - schon ab 100x100x100 ist der Algorithmus zu langsam und zu speicherintensiv
+	 * - Kistenrotation wird nicht durchgeführt, da zu langsam
+	 * - keine Kriterien für Bevorzugung "guter" Plätze, z.B. maximale Berührungsfläche
+	 */
+	def loadLayer(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
 				
-		new LoadedContainer(Set(), Set())
+		val layer: Array[Array[Int]] = Array.ofDim(container.size.width, container.size.depth)
 		
+		var loadedBoxes: List[LoadedBox] = Nil
+		var skippedBoxes: List[Box] = Nil
+		var stopLoading = false
+		for (box <- boxLoadingOrder) {
+			if (!stopLoading) {
+				val positions = 
+					Helpers.findFlatSurfaces(layer, new Dimension2D(box.size.width, box.size.depth))
+				
+				val possiblePositions =	positions.filter(pos => 
+					layer(pos.x)(pos.y) + box.size.height <= container.size.height)
+					
+				if (possiblePositions.isEmpty) {
+					stopLoading = true
+					skippedBoxes ::= box
+				} else {
+					val firstPosition = possiblePositions(0)
+					val x = firstPosition.x
+					val y = firstPosition.y
+					val z = layer(x)(y)
+					loadedBoxes ::= LoadedBox(box, Position3D(x,y,z))
+					// adjust layer -> add box height to surface
+					for (layerX <- x until x + box.size.width;
+					     layerY <- y until y + box.size.depth) {
+						layer(layerX)(layerY) += box.size.height
+					}
+				}
+			} else {
+				skippedBoxes ::= box
+			}
+		}
+		
+		new LoadedContainer(loadedBoxes, skippedBoxes)
 	}
+	
+//	def load(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
+//				
+//		//val layer = Array.ofDim(container.size.width, container.size.depth)
+//		
+//		
+//		 
+//		val box = new BoundingBox(new Point3d(0,0,0), new Point3d(10,10,10))
+//		val box2 = new BoundingBox(new Point3d(0,0,9), new Point3d(20,20,20))
+//		val i = box.intersect(box2)
+//		
+//		// TODO wie kann die Fläche der angrenzenden Boxen ermittelt werden??
+//		
+//		new LoadedContainer(Set(), Set())
+//		
+//	}
 	
 			// jede Box kann um 90° gedreht werden -> Orientierung mit speichern
 		
@@ -50,9 +119,6 @@ object ContainerLoader {
 	
 }
 
-case class LoadedContainer(loadedBoxes: Set[LoadedBox], skippedBoxes: Set[Box])
+case class LoadedContainer(loadedBoxes: List[LoadedBox], skippedBoxes: List[Box])
 
-case class LoadedBox(box: Box, position: Position, isRotated: Boolean)
-
-// TODO Bezugspunkt muss klar sein!
-case class Position(x: Int, y: Int, z: Int)
+case class LoadedBox(box: Box, position: Position3D) // TODO isRotated reicht nicht

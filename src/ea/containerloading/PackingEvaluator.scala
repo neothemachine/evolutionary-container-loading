@@ -9,11 +9,11 @@ class PackingEvaluator(problem: ContainerProblem) extends FitnessEvaluator[jList
 	def getFitness(candidate: jList[Int], population: jList[_ <: jList[Int]]): Double = {
 		
 		val boxLoadingOrder = candidate.toList.map(problem.getBox(_)) //TODO wieso .toList nötig?
-		val loadingResult = ContainerLoader.load(problem.getContainer, boxLoadingOrder) 
+		val loadingResult = ContainerLoader.loadLayer(problem.getContainer, boxLoadingOrder) 
 				
-		
-		
-		return candidate.take(5).sum
+		// calculate and return space utilization ratio
+		val spaceUsed = loadingResult.loadedBoxes.map(loadedBox => loadedBox.box.size.volume).sum
+		return (spaceUsed: Double) / (problem.getContainer.size.volume: Double)
 	}
 	
 	def isNatural = true
