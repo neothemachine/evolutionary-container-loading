@@ -4,6 +4,7 @@ import org.uncommons.watchmaker.framework.selection._
 import org.uncommons.watchmaker.framework._
 import org.uncommons.maths.random.Probability
 import scala.collection.JavaConversions._
+import ea.containerloading.vis._
 
 object Main {
 	def main(args : Array[String]) : Unit = {
@@ -15,12 +16,12 @@ object Main {
 			        Dimension3D(20,10,10) -> 10,
 			        Dimension3D(30,10,20) -> 5,
 			        Dimension3D(50,10,10) -> 2))
-		
+			
 		val runner = new EvolutionaryContainerLoading(
 			new RankSelection,
 			populationSize = 30,
 			eliteCount = 2,
-			generationCount = 100,
+			generationCount = 2,
 			crossover = true,
 			mutation = true)
 		
@@ -37,5 +38,7 @@ object Main {
 		val boxLoadingOrder = bestCandidate.toList.map(problem.getBox(_))
 		val loadingResult = ContainerLoader.loadLayer(problem.getContainer, boxLoadingOrder)
 		println(loadingResult)
+		
+		CandidateViewer.showCandidate(problem, loadingResult)
 	}
 }
