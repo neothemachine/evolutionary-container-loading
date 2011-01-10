@@ -19,14 +19,14 @@ object ContainerLoader {
 	 * - Kisten werden immer von oben beladen
 	 * 
 	 * Nachteile:
-	 * - schon ab 100x100x100 ist der Algorithmus zu langsam und zu speicherintensiv
+	 * - schon ab 100x100x100 ist der Algorithmus zu langsam
 	 * - Kistenrotation wird nicht durchgeführt, da zu langsam
 	 * - keine Kriterien für Bevorzugung "guter" Plätze, z.B. maximale Berührungsfläche
 	 */
 	def loadLayer(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
 				
 		val layer: Array[Array[Int]] = Array.ofDim(container.size.width, container.size.depth)
-		// FIXME boxes überschneiden sich, irgendwo ist noch ein Fehler!
+
 		var loadedBoxes: List[LoadedBox] = Nil
 		var skippedBoxes: List[Box] = Nil
 		var stopLoading = false
@@ -35,10 +35,7 @@ object ContainerLoader {
 				val maxHeight = container.size.height - box.size.height
 				val possiblePositions = 
 					Helpers.findFlatSurfaces(layer, new Dimension2D(box.size.width, box.size.depth), maxHeight)
-				
-//				val possiblePositions =	positions.filter(pos => 
-//					layer(pos.x)(pos.y) + box.size.height <= container.size.height)
-					
+									
 				if (possiblePositions.isEmpty) {
 					stopLoading = true
 					skippedBoxes ::= box

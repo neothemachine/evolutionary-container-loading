@@ -16,6 +16,11 @@ object Main {
 //			        Dimension3D(20,10,10) -> 15,
 //			        Dimension3D(30,10,20) -> 10,
 //			        Dimension3D(50,10,10) -> 5))
+	
+//		val problem = new ContainerProblem(
+//			containerSize = Dimension3D(10, 10, 10),
+//			boxSizeFrequencies =
+//				Map(Dimension3D(10,10,5) -> 2))
 		
 //		// thpack9 - 1
 //		val problem = new ContainerProblem(
@@ -105,7 +110,7 @@ object Main {
 			new RankSelection,
 			populationSize = 30,
 			eliteCount = 2,
-			generationCount = 500,
+			generationCount = 100,
 			crossover = true,
 			mutation = true)
 		
@@ -123,6 +128,6 @@ object Main {
 		val loadingResult = ContainerLoader.loadLayer(problem.getContainer, boxLoadingOrder)
 		println("skipped: " + loadingResult.skippedBoxes.length)
 		
-		//CandidateViewer.showCandidate(loadingResult)
+		CandidateViewer.showCandidate(loadingResult)
 	}
 }
