@@ -26,17 +26,18 @@ object ContainerLoader {
 	def loadLayer(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
 				
 		val layer: Array[Array[Int]] = Array.ofDim(container.size.width, container.size.depth)
-		
+		// FIXME boxes überschneiden sich, irgendwo ist noch ein Fehler!
 		var loadedBoxes: List[LoadedBox] = Nil
 		var skippedBoxes: List[Box] = Nil
 		var stopLoading = false
 		for (box <- boxLoadingOrder) {
 			if (!stopLoading) {
-				val positions = 
-					Helpers.findFlatSurfaces(layer, new Dimension2D(box.size.width, box.size.depth))
+				val maxHeight = container.size.height - box.size.height
+				val possiblePositions = 
+					Helpers.findFlatSurfaces(layer, new Dimension2D(box.size.width, box.size.depth), maxHeight)
 				
-				val possiblePositions =	positions.filter(pos => 
-					layer(pos.x)(pos.y) + box.size.height <= container.size.height)
+//				val possiblePositions =	positions.filter(pos => 
+//					layer(pos.x)(pos.y) + box.size.height <= container.size.height)
 					
 				if (possiblePositions.isEmpty) {
 					stopLoading = true
@@ -44,12 +45,13 @@ object ContainerLoader {
 				} else {
 					val firstPosition = possiblePositions(0)
 					val x = firstPosition.x
-					val y = firstPosition.y
-					val z = layer(x)(y)
+					val z = firstPosition.y
+					val y = layer(x)(z)
+										
 					loadedBoxes ::= LoadedBox(box, Position3D(x,y,z))
 					// adjust layer -> add box height to surface
 					for (layerX <- x until x + box.size.width;
-					     layerY <- y until y + box.size.depth) {
+					     layerY <- z until z + box.size.depth) {
 						layer(layerX)(layerY) += box.size.height
 					}
 				}
@@ -58,7 +60,7 @@ object ContainerLoader {
 			}
 		}
 		
-		new LoadedContainer(loadedBoxes, skippedBoxes)
+		new LoadedContainer(container, loadedBoxes, skippedBoxes)
 	}
 	
 //	def load(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
@@ -119,6 +121,6 @@ object ContainerLoader {
 	
 }
 
-case class LoadedContainer(loadedBoxes: List[LoadedBox], skippedBoxes: List[Box])
+case class LoadedContainer(container: Container, loadedBoxes: List[LoadedBox], skippedBoxes: List[Box])
 
 case class LoadedBox(box: Box, position: Position3D) // TODO isRotated reicht nicht

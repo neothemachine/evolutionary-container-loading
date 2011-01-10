@@ -9,7 +9,7 @@ import javax.vecmath._
 
 object CandidateViewer {
 
-	def showCandidate(problem: ContainerProblem, loaded: LoadedContainer) = {
+	def showCandidate(loaded: LoadedContainer) = {
 		
 		val universe = new SimpleUniverse
 		val scene = new BranchGroup
@@ -17,18 +17,18 @@ object CandidateViewer {
 		setupUniverse(universe, scene)
 		
 		// draw container
-		val norm = (problem.getContainer.size.width max 
-		            problem.getContainer.size.depth max
-		            problem.getContainer.size.height) * 1.5f
+		val norm = (loaded.container.size.width max 
+		            loaded.container.size.depth max
+		            loaded.container.size.height) * 1.5f
 		
 		val appearance = new Appearance
 		appearance.setColoringAttributes(new ColoringAttributes(1.0f,0,0,ColoringAttributes.NICEST))
 		appearance.setTransparencyAttributes(new TransparencyAttributes(TransparencyAttributes.NICEST, 0.5f))
 		
 		val container = new gBox(
-				problem.getContainer.size.width / norm,
-				problem.getContainer.size.depth / norm, 
-				problem.getContainer.size.height / norm, appearance)
+				loaded.container.size.width / norm,
+				loaded.container.size.height / norm, 
+				loaded.container.size.depth / norm, appearance)
 		
 		scene.addChild(container)
 		
@@ -40,7 +40,7 @@ object CandidateViewer {
 			boxAppearance.setColoringAttributes(new ColoringAttributes(color,ColoringAttributes.NICEST))
 
 			val boxSize = box.box.size
-			val gBox = new gBox(boxSize.width/norm, boxSize.depth/norm, boxSize.height/norm, boxAppearance)
+			val gBox = new gBox(boxSize.width/norm, boxSize.height/norm, boxSize.depth/norm, boxAppearance)
 			
 			val transform = new Transform3D
 			transform.setTranslation(new Vector3f(box.position.x/norm, box.position.y/norm, box.position.z/norm))

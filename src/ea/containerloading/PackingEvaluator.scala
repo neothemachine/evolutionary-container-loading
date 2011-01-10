@@ -13,7 +13,8 @@ class PackingEvaluator(problem: ContainerProblem) extends FitnessEvaluator[jList
 				
 		// calculate and return space utilization ratio
 		val spaceUsed = loadingResult.loadedBoxes.map(loadedBox => loadedBox.box.size.volume).sum
-		return (spaceUsed: Double) / (problem.getContainer.size.volume: Double)
+		val ratio = (spaceUsed: Double) / (problem.getContainer.size.volume: Double)
+		return ratio
 	}
 	
 	def isNatural = true
