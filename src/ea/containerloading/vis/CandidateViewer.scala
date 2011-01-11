@@ -17,9 +17,9 @@ object CandidateViewer {
 		setupUniverse(universe, scene)
 		
 		// draw container
-		val norm = (loaded.container.size.width max 
-		            loaded.container.size.depth max
-		            loaded.container.size.height) * 1.2f
+		val norm: Float = loaded.container.size.width max 
+		                  loaded.container.size.depth max
+		                  loaded.container.size.height
 		
 		val appearance = new Appearance
 		appearance.setColoringAttributes(new ColoringAttributes(1.0f,1.0f,1.0f,ColoringAttributes.NICEST))
@@ -32,19 +32,13 @@ object CandidateViewer {
 		val container = new gBox(
 				// jeweils /2, da Box die H‰lfte der Breite/Hˆhe/Tiefe erwartet
 				// (wie bei Kreis -> statt Durchmesser, Radius)
-				// auﬂerdem minimale Vergrˆﬂerung um 0.001, damit die ‰uﬂeren Boxen
+				// auﬂerdem minimale Vergrˆﬂerung um 0.0001, damit die ‰uﬂeren Boxen
 				// nicht das weiﬂe Drahtgitter vom Container ¸bermalen
-				(loaded.container.size.width / norm) / 2  + 0.001f,
-				(loaded.container.size.height / norm) / 2 + 0.001f, 
-				(loaded.container.size.depth / norm) / 2 + 0.001f, appearance)
-		
-		val transform = new Transform3D
-		transform.setTranslation(
-				new Vector3f(container.getXdimension, container.getYdimension, container.getZdimension))
-		val tg = new TransformGroup(transform)
-		tg.addChild(container)
-		
-		scene.addChild(tg)
+				(loaded.container.size.width / norm) / 2  + 0.0001f,
+				(loaded.container.size.height / norm) / 2 + 0.0001f, 
+				(loaded.container.size.depth / norm) / 2 + 0.0001f, appearance)
+
+		scene.addChild(container)
 		
 		// add everything to universe
 		universe.addBranchGraph(scene)
@@ -71,9 +65,11 @@ object CandidateViewer {
 			val transform = new Transform3D
 			transform.setTranslation(
 					new Vector3f(
-							gBox.getXdimension + box.position.x / norm,
-							gBox.getYdimension + box.position.y / norm,
-							gBox.getZdimension + box.position.z / norm))
+							gBox.getXdimension        // move box edge to origin
+							- container.getXdimension // move box edge to container edge
+							+ box.position.x / norm,  // move box to final position 
+							gBox.getYdimension - container.getYdimension + box.position.y / norm,
+							gBox.getZdimension - container.getZdimension + box.position.z / norm))
 			val tg = new TransformGroup(transform)
 			tg.addChild(gBox)
 			tg.addChild(gBoxPolygon)
@@ -83,14 +79,7 @@ object CandidateViewer {
 			universe.addBranchGraph(boxScene)
 			Thread.sleep(1000)
 		}
-		
-		
-//		// add everything to universe
-//		scene.compile
-//		universe.addBranchGraph(scene)
-//		
-//		// reset view
-//		universe.getViewingPlatform.setNominalViewingTransform
+		println("all boxes were drawn")
 	}
 	
 	private def setupUniverse(universe: SimpleUniverse, scene: BranchGroup) = {
