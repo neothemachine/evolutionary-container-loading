@@ -6,16 +6,18 @@ import org.uncommons.maths.random.Probability
 import scala.collection.JavaConversions._
 import ea.containerloading.vis._
 
+import java.text.{DecimalFormat}
+
 object Main {
 	def main(args : Array[String]) : Unit = {
 
-//		val problem = new ContainerProblem(
-//			containerSize = Dimension3D(50, 50, 50),
-//			boxSizeFrequencies =
-//				Map(Dimension3D(10,10,10) -> 5,
-//			        Dimension3D(20,10,10) -> 15,
-//			        Dimension3D(30,10,20) -> 10,
-//			        Dimension3D(50,10,10) -> 5))
+		val problem = new ContainerProblem(
+			containerSize = Dimension3D(50, 50, 50),
+			boxSizeFrequencies =
+				Map(Dimension3D(10,10,10) -> 5,
+			        Dimension3D(20,10,10) -> 15,
+			        Dimension3D(30,10,20) -> 10,
+			        Dimension3D(50,10,10) -> 5))
 	
 //		val problem = new ContainerProblem(
 //			containerSize = Dimension3D(10, 10, 10),
@@ -29,14 +31,14 @@ object Main {
 //				Map(Dimension3D(6,8,2) -> 20,
 //			        Dimension3D(4,10,8) -> 50))
 		
-		// thpack9 - 47
-		val problem = new ContainerProblem(
-			containerSize = Dimension3D(60, 43, 25),
-			boxSizeFrequencies =
-				Map(Dimension3D(13,11,21) -> 25,
-			        Dimension3D(13,19,11) -> 20,
-			        Dimension3D(14,6,10)  -> 20,
-			        Dimension3D(13,5,8)   -> 34))		
+//		// thpack9 - 47
+//		val problem = new ContainerProblem(
+//			containerSize = Dimension3D(60, 43, 25),
+//			boxSizeFrequencies =
+//				Map(Dimension3D(13,11,21) -> 25,
+//			        Dimension3D(13,19,11) -> 20,
+//			        Dimension3D(14,6,10)  -> 20,
+//			        Dimension3D(13,5,8)   -> 34))		
 		
 //		// thpack1 - 1
 //		val problem = new ContainerProblem(
@@ -109,16 +111,19 @@ object Main {
 		val runner = new EvolutionaryContainerLoading(
 			new RankSelection,
 			populationSize = 30,
-			eliteCount = 2,
+			eliteCount = 0,
 			generationCount = 100,
 			crossover = true,
 			mutation = true)
+		
+		val fitnessFormat = new DecimalFormat("#.#####")
 		
 		val bestCandidate = runner.runEvolution(problem,
 			listener = Some(popData => {
 				if (popData.getGenerationNumber % 1 == 0) {
 					println(popData.getGenerationNumber + " " +
-							popData.getBestCandidateFitness + " " + 
+							fitnessFormat.format(popData.getBestCandidateFitness) + " " + 
+							popData.getElapsedTime / 1000 + "s so far " +
 							popData.getBestCandidate)
 				}
 			})

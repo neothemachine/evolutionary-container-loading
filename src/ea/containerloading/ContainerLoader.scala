@@ -25,7 +25,7 @@ object ContainerLoader {
 	 */
 	def loadLayer(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
 				
-		val layer: Array[Array[Int]] = Array.ofDim(container.size.width, container.size.depth)
+		val layer: Array[Array[Int]] = Array.ofDim(container.size.depth, container.size.width)
 
 		var loadedBoxes: List[LoadedBox] = Nil
 		var skippedBoxes: List[Box] = Nil
@@ -43,13 +43,25 @@ object ContainerLoader {
 					val firstPosition = possiblePositions(0)
 					val x = firstPosition.x
 					val z = firstPosition.y
-					val y = layer(x)(z)
+					val y = layer(z)(x)
+					
+					/*
+					 * TODO
+					 * Die Berührungsfläche lässt sich leicht berechnen mit Hilfe des Layers!
+					 * Es müssen einfach alle um die Boxposition umliegenden Höhenwerte betrachtet
+					 * werden -- mit Sonderbehandlung für die Containerwände.
+					 * Dafür müssen natürlich alle surfaces gefunden werden, statt nur einem. 
+					 * => findFlatSurfaces ist der Flaschenhals hier -> muss schneller werden!
+					 * 
+					 * Rotation könnte in den Fällen angewandt werden, in denen es nicht möglich ist,
+					 * eine Box zu positionieren.
+					 */
 										
 					loadedBoxes ::= LoadedBox(box, Position3D(x,y,z))
 					// adjust layer -> add box height to surface
 					for (layerX <- x until x + box.size.width;
 					     layerY <- z until z + box.size.depth) {
-						layer(layerX)(layerY) += box.size.height
+						layer(layerY)(layerX) += box.size.height
 					}
 				}
 			} else {
