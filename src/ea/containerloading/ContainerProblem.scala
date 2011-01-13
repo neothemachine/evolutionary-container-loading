@@ -3,11 +3,11 @@ package ea.containerloading
 case class Box(id: Int, size: Dimension3D)
 case class Container(size: Dimension3D)
 
-class ContainerProblem(container: Container, boxSizeFrequencies: Map[Dimension3D, Int]) {
+class ContainerProblem(val container: Container, val boxSizeFrequencies: Map[Dimension3D, Int]) {
 	
 	def this(containerSize: Dimension3D, boxSizeFrequencies: Map[Dimension3D, Int]) =
 		this(Container(containerSize), boxSizeFrequencies)
-		
+
 	private val boxIds = 0 to (boxSizeFrequencies.values.sum - 1)
 	
 	/**
@@ -18,19 +18,16 @@ class ContainerProblem(container: Container, boxSizeFrequencies: Map[Dimension3D
 		val boxReferences: List[Int] = calculateOriginalBoxIndices
 		val boxes = boxSizeFrequencies.keys.toList
 		// TODO geht doch sicher auch eleganter...
-		val mapping = scala.collection.mutable.Map[Int, Box]()
-		boxIds foreach {id => 
+		val mapping = collection.mutable.Map[Int, Box]()
+		for (id <- boxIds) { 
 			mapping += (id -> Box(id, boxes(boxReferences(id))))
 		}
 		Map(mapping.toList:_*)		
 	}
 	
-	private val boxes = boxIndexMapping.values 
+	val boxes = boxIndexMapping.values 
 	
-	def getContainer = container
-	def getBoxSizeFrequencies = boxSizeFrequencies
-	def getBoxes = boxes
-	def getBox(id: Int): Box = boxIndexMapping(id)
+	def boxFromId(id: Int): Box = boxIndexMapping(id)
 			
 	/**
 	 * Boxes of same type (dimension) get same indices
@@ -41,7 +38,7 @@ class ContainerProblem(container: Container, boxSizeFrequencies: Map[Dimension3D
 	private def calculateOriginalBoxIndices(): List[Int] = {
 		var indices: List[Int] = Nil
 		
-		this.boxSizeFrequencies.foreach { boxCount => 
+		for (boxCount <- boxSizeFrequencies) {
 			val currentBoxIndex = indices match {
 				case Nil        => 0
 				case head::tail => head + 1
@@ -52,6 +49,4 @@ class ContainerProblem(container: Container, boxSizeFrequencies: Map[Dimension3D
 		
 		return indices.reverse
 	}
-	
-
 }

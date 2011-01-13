@@ -4,6 +4,8 @@ import javax.media.j3d._
 import javax.vecmath._
 import util.control.Breaks._
 
+import Kevin._
+
 object ContainerLoader {
 	
 	/**
@@ -25,7 +27,7 @@ object ContainerLoader {
 	 */
 	def loadLayer(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
 				
-		val layer: Array[Array[Int]] = Array.ofDim(container.size.depth, container.size.width)
+		val layer = Array.ofDim[Int](container.size.depth, container.size.width)
 
 		var loadedBoxes: List[LoadedBox] = Nil
 		var skippedBoxes: List[Box] = Nil
@@ -71,6 +73,44 @@ object ContainerLoader {
 		
 		new LoadedContainer(container, loadedBoxes, skippedBoxes)
 	}
+	
+//	/**
+//	 * Kevin
+//	 */
+//	def loadLayer(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
+//				
+//		var layer: Kevin.Grid[Int] = List.fill(container.size.depth, container.size.width)(0)
+//
+//		var loadedBoxes: List[LoadedBox] = Nil
+//		var skippedBoxes: List[Box] = Nil
+//		var stopLoading = false
+//		for (box <- boxLoadingOrder) {
+//			if (!stopLoading) {
+//				val maxHeight = container.size.height - box.size.height
+//				val possiblePositions = 
+//					Helpers.findFlatSurfacesKevin(layer, new Dimension2D(box.size.width, box.size.depth), maxHeight)
+//									
+//				if (possiblePositions.isEmpty) {
+//					stopLoading = true
+//					skippedBoxes ::= box
+//				} else {
+//					val firstPosition = possiblePositions(0)
+//					val x = firstPosition._1.x
+//					val z = firstPosition._1.y
+//					val y = firstPosition._2
+//					
+//					loadedBoxes ::= LoadedBox(box, Position3D(x,y,z))
+//					
+//					// adjust layer -> add box height to surface
+//					layer = layer.deepMapRange(x, y, box.size.width, box.size.depth){ h => y + box.size.height }
+//				}
+//			} else {
+//				skippedBoxes ::= box
+//			}
+//		}
+//		
+//		new LoadedContainer(container, loadedBoxes, skippedBoxes)
+//	}
 	
 //	def load(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
 //				

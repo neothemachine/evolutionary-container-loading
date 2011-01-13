@@ -12,7 +12,7 @@ case class Position2D(x: Int, y: Int)
 case class Position3D(x: Int, y: Int, z: Int)
 
 object Helpers {
-	
+
 	/**
 	 * O(n^2), with the help of Nikita Rybak, see link:
 	 * http://stackoverflow.com/questions/4656706/how-to-find-same-value-rectangular-areas-of-a-given-size-in-a-matrix-most-efficie/4657191#4657191
@@ -23,15 +23,15 @@ object Helpers {
 		val matrixWidth = matrix(0).length
 		var resultPositions: List[Position2D] = Nil
 		
-		val a: Array[Array[Int]] = Array.ofDim(matrixHeight, matrixWidth)
+		val a = Array.ofDim[Int](matrixHeight, matrixWidth)
 		
-		for (y <- matrixHeight - 2 to 0 by -1;
-		     x <- 0 until matrixWidth)
-		{
-			val yx = matrix(y)(x)
-			if (yx > maxHeight) {
+		for {
+			y <- matrixHeight - 2 to 0 by -1
+		    x <- 0 until matrixWidth
+		} {
+			if (matrix(y)(x)  > maxHeight) {
 				a(y)(x) = -1
-			} else if (yx == matrix(y+1)(x)) {
+			} else if (matrix(y)(x)  == matrix(y+1)(x)) {
 				a(y)(x) = a(y+1)(x) + 1
 			}
 		}
@@ -39,8 +39,7 @@ object Helpers {
 		for (y <- 0 until matrixHeight) {
 			var current_width = 0
 			for (x <- 0 until matrixWidth) {
-				val ayx = a(y)(x)
-				if (ayx == -1 || ayx < surfaceSize.height - 1) {
+				if (a(y)(x) == -1 || a(y)(x) < surfaceSize.height - 1) {
 					// this column has different numbers in it, no game
 					current_width = 0
 				} else if (current_width > 0 && matrix(y)(x) != matrix(y)(x-1)) {
@@ -59,54 +58,16 @@ object Helpers {
 	}
 	
 //	/**
-//	 * Ansatz von Daniel C. Sobral mit Hilfe von dynamic programming
-//	 * http://stackoverflow.com/questions/4656706/how-to-find-same-value-rectangular-areas-of-a-given-size-in-a-matrix-most-efficie/4662246#4662246
-//	 * 
-//	 * allerdings sehr langsam und sehr hoher Speicherverbrauch
+//	 * pure functional approach, but too slow without paralellization using Scala 2.9 and GPU support
 //	 */
-//	def findFlatSurfaces(matrix: Array[Array[Int]], surfaceSize: Dimension2D, maxHeight: Int): Seq[Position2D] = {
-//		rectanglesOf(surfaceSize.width, surfaceSize.height, matrix)
+//	def findFlatSurfacesKevin(matrix: Kevin.Grid[Int], surfaceSize: Dimension2D, maxHeight: Int) = {
+//		val rectangles = Kevin.findAllRectangles(matrix)
+//    	val filtered = rectangles filter { 
+//			case (rect,value,pos) => 
+//				value <= maxHeight && rect.w >= surfaceSize.width && rect.h >= surfaceSize.height 
+//		}
+//    	filtered.distinct map { case (rect,value,pos) => (Position2D(pos._1, pos._2), value) }
 //	}
-//	
-//	def computeSquareSize[T](grid: Array[Array[T]]) = {
-//	    val output = Array.fill[Set[Dimension2D]](grid.length, grid(0).length)(Set(Dimension2D(1, 1)))
-//	
-//	    def addLeft(x: Int, y: Int) = if (x > 0 && grid(y)(x) == grid(y)(x - 1)) 
-//	        output(y)(x) ++= output(y)(x - 1) map (squareSize => squareSize copy (width = squareSize.width + 1))
-//	
-//	    def addUp(x: Int, y: Int) = if (y > 0 && grid(y)(x) == grid(y - 1)(x))
-//	        output(y)(x) ++= output(y - 1)(x) map (squareSize => squareSize copy (height = squareSize.height + 1))
-//	
-//	    def delLeft(x: Int, y: Int) = if (x > 0 && grid(y)(x) != grid(y)(x - 1))
-//	        output(y)(x) = output(y)(x) filter (_.width == 1)
-//	
-//	    def delUp(x: Int, y: Int) = if (y > 0 && grid(y)(x) != grid(y - 1)(x))
-//	        output(y)(x) = output(y)(x) filter (_.height == 1)
-//	
-//	    for {
-//	        y <- grid.indices
-//	        x <- grid(y).indices
-//	    } {
-//	        addLeft(x, y)
-//	        addUp(x, y)
-//	        delLeft(x, y)
-//	        delUp(x, y)
-//	    }
-//	
-//	    output
-//	}
-//
-//	def rectanglesOf[T](width: Int, height: Int, grid: Array[Array[T]]): Seq[Position2D] = {
-//	    val squareSizes = computeSquareSize(grid)
-//	    val minSquare = Dimension2D(height = height, width = width)
-//	    val result = for {
-//	        y <- squareSizes.indices
-//	        x <- squareSizes(y).indices
-//	        sq <- squareSizes(y)(x) filter (minSquare ==)
-//	    } yield Position2D(x - width + 1, y - height + 1)
-//	    result
-//	}
-
 	
 	
 //	/**

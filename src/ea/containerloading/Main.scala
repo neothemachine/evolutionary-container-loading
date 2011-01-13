@@ -11,13 +11,13 @@ import java.text.{DecimalFormat}
 object Main {
 	def main(args : Array[String]) : Unit = {
 
-		val problem = new ContainerProblem(
-			containerSize = Dimension3D(50, 50, 50),
-			boxSizeFrequencies =
-				Map(Dimension3D(10,10,10) -> 5,
-			        Dimension3D(20,10,10) -> 15,
-			        Dimension3D(30,10,20) -> 10,
-			        Dimension3D(50,10,10) -> 5))
+//		val problem = new ContainerProblem(
+//			containerSize = Dimension3D(50, 50, 50),
+//			boxSizeFrequencies =
+//				Map(Dimension3D(10,10,10) -> 5,
+//			        Dimension3D(20,10,10) -> 15,
+//			        Dimension3D(30,10,20) -> 10,
+//			        Dimension3D(50,10,10) -> 5))
 	
 //		val problem = new ContainerProblem(
 //			containerSize = Dimension3D(10, 10, 10),
@@ -40,13 +40,13 @@ object Main {
 //			        Dimension3D(14,6,10)  -> 20,
 //			        Dimension3D(13,5,8)   -> 34))		
 		
-//		// thpack1 - 1
-//		val problem = new ContainerProblem(
-//			containerSize = Dimension3D(233, 220, 587),
-//			boxSizeFrequencies =
-//				Map(Dimension3D(76,30,108) -> 40,
-//			        Dimension3D(43,25,110) -> 33,
-//			        Dimension3D(81,55,92)  -> 39))
+		// thpack1 - 1
+		val problem = new ContainerProblem(
+			containerSize = Dimension3D(233, 220, 587),
+			boxSizeFrequencies =
+				Map(Dimension3D(76,30,108) -> 40,
+			        Dimension3D(43,25,110) -> 33,
+			        Dimension3D(81,55,92)  -> 39))
 			
 //		// thpack2 - 1
 //		val problem = new ContainerProblem(
@@ -129,8 +129,8 @@ object Main {
 			})
 		)
 		
-		val boxLoadingOrder = bestCandidate.toList.map(problem.getBox(_))
-		val loadingResult = ContainerLoader.loadLayer(problem.getContainer, boxLoadingOrder)
+		val boxLoadingOrder = bestCandidate.toList.map(problem.boxFromId(_))
+		val loadingResult = ContainerLoader.loadLayer(problem.container, boxLoadingOrder)
 		println("skipped: " + loadingResult.skippedBoxes.length)
 		
 		CandidateViewer.showCandidate(loadingResult)

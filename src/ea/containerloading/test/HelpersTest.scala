@@ -1,6 +1,7 @@
 package ea.containerloading.test
 
 import ea.containerloading._
+import ea.containerloading.Kevin._
 
 import org.junit._
 import Assert._
@@ -48,40 +49,13 @@ class HelpersTest {
 //    			List(0,0,0,0,0,0,0),
 //    			List(0,1,1,5,0,0,0))
 //    	
-//    	val positions = findRectangles(layer)
-//    	println
-////    	assertSame(3, positions.length)
-////    	assert(Set(Position2D(3,0), Position2D(4,0), Position2D(4,1)).subsetOf(positions.toSet))
+//    	val positions = Helpers.findFlatSurfacesKevin(layer, Dimension2D(2,3), 5)
+//    	val coordSet = (positions map (_._1)).toSet
+//    	
+//    	assertSame(5, positions.length)
+//    	assert(Set(Position2D(3,0), Position2D(4,0), Position2D(5,0), Position2D(4,1), Position2D(5,1)).subsetOf(coordSet))
 //    	
 //    }
-//
-//	type Grid[T] = List[List[T]]
-//	
-//	def runLengths[T](row:List[T]) : List[(T,Int)] = row match {
-//	  case Nil => Nil
-//	  case h :: t => (h -> row.takeWhile(_ == h).size) :: runLengths(t)
-//	}
-//	
-//	/**
-//	 * Kevin's algo, nicht geeignet für überlappende surfaces!
-//	 * @param grid
-//	 */
-//	def findRectangles[T](grid: Grid[T]) = {
-//	  val step1 = (grid map runLengths)
-//	  val step2 = (step1.transpose map runLengths).transpose
-//	  
-//	  val step1b = (grid.transpose map runLengths).transpose
-//	  val step2b = (step1 map runLengths)
-//	  
-//	  val a = step2 map { _ map { case ((a,b),c) => (a,(b,c)) } }
-//	  val b = step2b map { _ map { case ((a,b),c) => (a,(b,c)) } }
-//	   val c = a zip b
-//	  //val r = List.flatten(c)
-//	}
-
-
-
-    
 }
 
 
