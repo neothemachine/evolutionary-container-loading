@@ -9,8 +9,8 @@ import ea.containerloading._
  */
 object Kevin {
 	
-	class RowOps[T](row: List[T]) {
-	  def withRunLengths[U](func: (T,Int)=>U): List[U] = {
+	class RowOps[@specialized(Int) T](row: List[T]) {
+	  def withRunLengths[@specialized(Int) U](func: (T,Int)=>U): List[U] = {
 	    @tailrec def recurse(row:List[T], acc:List[U]): List[U] = row match {
 	      case Nil => acc
 	      case head :: tail =>
@@ -26,13 +26,13 @@ object Kevin {
 	    }
 	}
 	
-	implicit def rowToOps[T](row: List[T]) = new RowOps(row)
-	type Grid[T] = List[List[T]]
+	implicit def rowToOps[@specialized(Int) T](row: List[T]) = new RowOps(row)
+	type Grid[@specialized(Int) T] = List[List[T]]
 	
-	class GridOps[T](grid: Grid[T]) {
-	  def deepZip[U](other: Grid[U]) = (grid zip other) map { case (g,o) => g zip o}
-	  def deepMap[U](f: (T)=>U) = grid map { _ map f}
-	  def mapCols[U](f: List[T]=>List[U]) = (grid.transpose map f).transpose
+	class GridOps[@specialized(Int) T](grid: Grid[T]) {
+	  def deepZip[@specialized(Int) U](other: Grid[U]) = (grid zip other) map { case (g,o) => g zip o}
+	  def deepMap[@specialized(Int) U](f: (T)=>U) = grid map { _ map f}
+	  def mapCols[@specialized(Int) U](f: List[T]=>List[U]) = (grid.transpose map f).transpose
 	  def height = grid.size
 	  def width = grid.head.size
 	  def coords = List.tabulate(height,width){ case (y,x) => (x,y) }
@@ -41,18 +41,18 @@ object Kevin {
         grid.mapRange(y,h){ _.mapRange(x,w)(func) }
 	}
 	
-	implicit def gridToOps[T](grid: Grid[T]) = new GridOps(grid)
+	implicit def gridToOps[@specialized(Int) T](grid: Grid[T]) = new GridOps(grid)
 
-	def withRowRunLengths[T,U](grid: Grid[T])(func: (T,Int)=>U) =
+	def withRowRunLengths[@specialized(Int) T, @specialized(Int) U](grid: Grid[T])(func: (T,Int)=>U) =
 	  grid map { _.withRunLengths(func) }
 	
-	def withColRunLengths[T,U](grid: Grid[T])(func: (T,Int)=>U) =
+	def withColRunLengths[@specialized(Int) T, @specialized(Int) U](grid: Grid[T])(func: (T,Int)=>U) =
 	  grid mapCols { _.withRunLengths(func) }
 
 	case class Rect(w: Int, h: Int)
 	object Rect { def empty = Rect(0,0) }
 
-	case class Cell[T](
+	case class Cell[@specialized(Int) T](
 	  value: T,
 	  coords: (Int,Int) = (0,0),
 	  widest: Rect = Rect.empty,

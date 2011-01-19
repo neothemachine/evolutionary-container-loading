@@ -58,7 +58,24 @@ object Helpers {
 	}
 	
 //	/**
-//	 * pure functional approach, but too slow without paralellization using Scala 2.9 and GPU support
+//	 * direkte funktionale Umsetzung von Nikita's Algo, trotzdem zu langsam 
+//	 */
+//	def findFlatSurfacesDaniel(matrix: Array[Array[Int]], surfaceSize: Dimension2D, maxHeight: Int) = {
+//		val rectangles = Daniel.findRectangles(surfaceSize.height, surfaceSize.width , matrix)
+//    	rectangles filter (r => matrix(r.y)(r.x) <= surfaceSize.height )
+//	}
+	
+//	/**
+//	 * optimierte funktionale Umsetzung von Nikita's Algo
+//	 */
+//	def findFlatSurfacesDaniel29(matrix: Array[Array[Int]], surfaceSize: Dimension2D, maxHeight: Int) = {
+//		val rectangles = Daniel29.findRectangles(surfaceSize.height, surfaceSize.width , matrix)
+//    	rectangles filter (r => matrix(r.y)(r.x) <= surfaceSize.height )
+//	}
+	
+//	
+//	/**
+//	 * pure functional approach, but too slow without parallelization using Scala 2.9 and GPU support
 //	 */
 //	def findFlatSurfacesKevin(matrix: Kevin.Grid[Int], surfaceSize: Dimension2D, maxHeight: Int) = {
 //		val rectangles = Kevin.findAllRectangles(matrix)
