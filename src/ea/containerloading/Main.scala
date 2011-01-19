@@ -5,6 +5,8 @@ import org.uncommons.watchmaker.framework._
 import org.uncommons.maths.random.Probability
 import scala.collection.JavaConversions._
 import ea.containerloading.vis._
+import org.jfree.chart._
+import org.jfree.data.xy._
 
 import java.text.{DecimalFormat}
 
@@ -110,11 +112,14 @@ object Main {
 		
 		val runner = new EvolutionaryContainerLoading(
 			new RankSelection,
-			populationSize = 30,
+			populationSize = 10,
 			eliteCount = 0,
-			generationCount = 100,
+			generationCount = 50,
 			crossover = true,
 			mutation = true)
+		
+		val meanStdDevFitnessSeries = new org.jfree.data.xy.YIntervalSeries("Mean Fitness and StdDev")
+		val maxFitnessSeries = new org.jfree.data.xy.XYSeries("Max Fitness")
 		
 		val fitnessFormat = new DecimalFormat("#.#####")
 		
@@ -126,13 +131,50 @@ object Main {
 							popData.getElapsedTime / 1000 + "s so far " +
 							popData.getBestCandidate)
 				}
+				meanStdDevFitnessSeries.add(
+						popData.getGenerationNumber, 
+						popData.getMeanFitness, 
+						popData.getMeanFitness - popData.getFitnessStandardDeviation,
+						popData.getMeanFitness + popData.getFitnessStandardDeviation)
+				
+				maxFitnessSeries.add(popData.getGenerationNumber, popData.getBestCandidateFitness)
 			})
 		)
+		
+		val meanStdDevFitnessData = new org.jfree.data.xy.YIntervalSeriesCollection
+		meanStdDevFitnessData.addSeries(meanStdDevFitnessSeries)
+		val maxFitnessData = new org.jfree.data.xy.XYSeriesCollection(maxFitnessSeries)
+		
+		val chart = createStatisticalXYLineChart(
+				"Container size: " + problem.container.size + ", boxes: " + problem.boxes.size,
+				"Generation",
+				"Fitness",
+				meanStdDevFitnessData, maxFitnessData)
+		val chartFrame = new org.jfree.chart.ChartFrame("Fitness", chart)
+		chartFrame.pack
+		chartFrame.setVisible(true)
 		
 		val boxLoadingOrder = bestCandidate.toList.map(problem.boxFromId(_))
 		val loadingResult = ContainerLoader.loadLayer(problem.container, boxLoadingOrder)
 		println("skipped: " + loadingResult.skippedBoxes.length)
 		
 		CandidateViewer.showCandidate(loadingResult)
+	}
+	
+	private def createStatisticalXYLineChart(title: String, xLabel: String, yLabel: String, data: IntervalXYDataset, data2: XYDataset): JFreeChart = {
+		val xAxis = new org.jfree.chart.axis.NumberAxis(xLabel)
+		xAxis.setStandardTickUnits(org.jfree.chart.axis.NumberAxis.createIntegerTickUnits)
+		val yAxis = new org.jfree.chart.axis.NumberAxis(yLabel)
+		val renderer = new org.jfree.chart.renderer.xy.DeviationRenderer(true, false)
+		val renderer2 = new org.jfree.chart.renderer.xy.XYLineAndShapeRenderer(true, false)
+		val plot = new org.jfree.chart.plot.XYPlot(data, xAxis, yAxis, renderer)
+		plot.setDataset(1, data2)
+		plot.setRenderer(1, renderer2)
+		
+		plot.setOrientation(org.jfree.chart.plot.PlotOrientation.VERTICAL)
+		val chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, true)
+		val theme = new org.jfree.chart.StandardChartTheme("JFree")
+		theme.apply(chart)
+		chart
 	}
 }
