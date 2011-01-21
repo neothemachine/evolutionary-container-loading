@@ -58,7 +58,7 @@ object CandidateViewer {
 			boxPAppearance.setColoringAttributes(boxAppearance.getColoringAttributes)
 			boxPAppearance.setPolygonAttributes(polyAttrbutes)
 			
-			val boxSize = box.box.size
+			val boxSize = box.rotation.rotateCuboid(box.box.size)
 			val gBox = new gBox((boxSize.width / norm)/2, (boxSize.height / norm)/2, (boxSize.depth / norm)/2, boxAppearance)
 			val gBoxPolygon = new gBox((boxSize.width / norm)/2, (boxSize.height / norm)/2, (boxSize.depth / norm)/2, boxPAppearance)
 			

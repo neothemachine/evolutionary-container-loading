@@ -17,7 +17,7 @@ class EvolutionaryContainerLoading(
              crossover: Boolean,
              mutation: Boolean) {
 	
-	assert(crossover || mutation)
+	require(crossover || mutation)
 	
 	def runEvolution(problem: ContainerProblem, listener: Option[(PopulationData[_ <: jList[Int]]) => Unit] = None): jList[Int] = {
 		

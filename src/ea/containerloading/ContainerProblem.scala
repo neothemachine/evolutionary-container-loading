@@ -1,14 +1,17 @@
 package ea.containerloading
 
-case class Box(id: Int, size: Dimension3D)
+case class Box(id: Int, size: Dimension3D, constraints: BoxConstraints = BoxConstraints(true, true))
+case class BoxConstraints(widthVertical: Boolean, depthVertical: Boolean) {
+	val allowedRotations = Rotation3D(depthVertical, true, widthVertical)
+}
 case class Container(size: Dimension3D)
 
-class ContainerProblem(val container: Container, val boxSizeFrequencies: Map[Dimension3D, Int]) {
+class ContainerProblem(val container: Container, val boxSizeFrequencies: Map[Dimension3D, (Int, BoxConstraints)]) {
 	
-	def this(containerSize: Dimension3D, boxSizeFrequencies: Map[Dimension3D, Int]) =
+	def this(containerSize: Dimension3D, boxSizeFrequencies: Map[Dimension3D, (Int, BoxConstraints)]) =
 		this(Container(containerSize), boxSizeFrequencies)
-
-	private val boxIds = 0 to (boxSizeFrequencies.values.sum - 1)
+		
+	private val boxIds = 0 to (boxSizeFrequencies.values.map(f => f._1).sum - 1)
 	
 	/**
 	 * weist jeder boxId eine Box zu
@@ -20,7 +23,9 @@ class ContainerProblem(val container: Container, val boxSizeFrequencies: Map[Dim
 		// TODO geht doch sicher auch eleganter...
 		val mapping = collection.mutable.Map[Int, Box]()
 		for (id <- boxIds) { 
-			mapping += (id -> Box(id, boxes(boxReferences(id))))
+			val size = boxes(boxReferences(id))
+			val boxConstraints = boxSizeFrequencies(size)._2
+			mapping += (id -> Box(id, size, boxConstraints))
 		}
 		Map(mapping.toList:_*)		
 	}
@@ -43,7 +48,7 @@ class ContainerProblem(val container: Container, val boxSizeFrequencies: Map[Dim
 				case Nil        => 0
 				case head::tail => head + 1
 			}
-			val newBoxes = List.fill(boxCount._2)(currentBoxIndex)
+			val newBoxes = List.fill(boxCount._2._1)(currentBoxIndex)
 			indices = newBoxes ::: indices
 		}
 		

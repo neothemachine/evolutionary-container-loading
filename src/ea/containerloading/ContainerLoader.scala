@@ -3,8 +3,12 @@ package ea.containerloading
 import javax.media.j3d._
 import javax.vecmath._
 import util.control.Breaks._
+import scala.math._
 
 import Kevin._
+
+case class LoadedContainer(container: Container, loadedBoxes: Seq[LoadedBox], skippedBoxes: Seq[Box])
+case class LoadedBox(box: Box, rotation: Rotation3D, position: Position3D)
 
 object ContainerLoader {
 	
@@ -25,7 +29,7 @@ object ContainerLoader {
 	 * - Kistenrotation wird nicht durchgeführt, da zu langsam
 	 * - keine Kriterien für Bevorzugung "guter" Plätze, z.B. maximale Berührungsfläche
 	 */
-	def loadLayer(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
+	def loadLayer(container: Container, boxLoadingOrder: Seq[Box]): LoadedContainer = {
 				
 		val layer = Array.ofDim[Int](container.size.depth, container.size.width)
 
@@ -35,14 +39,58 @@ object ContainerLoader {
 		for (box <- boxLoadingOrder) {
 			if (!stopLoading) {
 				val maxHeight = container.size.height - box.size.height
-				val possiblePositions = 
+				var possiblePositions = 
 					Helpers.findFlatSurfaces(layer, new Dimension2D(box.size.width, box.size.depth), maxHeight)
-									
+				
+				var rotation = Rotation3D(false, false, false)
+					
+				if (possiblePositions.isEmpty) {
+					// try to rotate the box to fit it in
+					breakable {
+						val rotations = boolVariations
+						val allowedRotations = rotations.filter { case (x,y,z) =>
+							if (!x && x == y && y == z) {
+								false
+							} else if (x && !box.constraints.allowedRotations.x) {
+								false
+							} else if (y && !box.constraints.allowedRotations.y) {
+								false
+							} else if (z && !box.constraints.allowedRotations.z) {
+								false
+							} else {
+								true
+							}
+						}
+
+						for ((rotateX, rotateY, rotateZ) <- allowedRotations) {
+							rotation = Rotation3D(rotateX, rotateY, rotateZ) 
+							val rotatedBoxSize = rotation.rotateCuboid(box.size)
+							val maxHeight = container.size.height - rotatedBoxSize.height
+							
+							possiblePositions = 
+								Helpers.findFlatSurfaces(
+										layer, 
+										new Dimension2D(rotatedBoxSize.width, rotatedBoxSize.depth),
+										maxHeight)
+										
+							if (!possiblePositions.isEmpty) {
+								break
+							}
+						}
+					}
+				}
+					
 				if (possiblePositions.isEmpty) {
 					stopLoading = true
 					skippedBoxes ::= box
 				} else {
+//					val minHeightPosition = possiblePositions.min(new Ordering[Position2D] {
+//						def compare(first: Position2D, second: Position2D): Int = {
+//							layer(first.y)(first.x) compare layer(second.y)(second.x)
+//						}
+//					})
 					val firstPosition = possiblePositions(0)
+					//val firstPosition = minHeightPosition
 					val x = firstPosition.x
 					val z = firstPosition.y
 					val y = layer(z)(x)
@@ -59,11 +107,12 @@ object ContainerLoader {
 					 * eine Box zu positionieren.
 					 */
 										
-					loadedBoxes ::= LoadedBox(box, Position3D(x,y,z))
+					loadedBoxes ::= LoadedBox(box, rotation, Position3D(x,y,z))
 					// adjust layer -> add box height to surface
-					for (layerX <- x until x + box.size.width;
-					     layerY <- z until z + box.size.depth) {
-						layer(layerY)(layerX) += box.size.height
+					val rotatedBoxSize = rotation.rotateCuboid(box.size)
+					for (layerX <- x until x + rotatedBoxSize.width;
+					     layerY <- z until z + rotatedBoxSize.depth) {
+						layer(layerY)(layerX) += rotatedBoxSize.height
 					}
 				}
 			} else {
@@ -168,8 +217,17 @@ object ContainerLoader {
 		 *    
 		 */
 	
+	private val boolVariations: List[(Boolean, Boolean, Boolean)] = {
+		var list = List[(Boolean, Boolean, Boolean)]()
+		for {
+			b1 <- List(true, false)
+			b2 <- List(true, false)
+			b3 <- List(true, false)
+		} {
+			list ::= (b1, b2, b3)
+		}
+		list
+	}
 }
 
-case class LoadedContainer(container: Container, loadedBoxes: List[LoadedBox], skippedBoxes: List[Box])
 
-case class LoadedBox(box: Box, position: Position3D) // TODO isRotated reicht nicht
