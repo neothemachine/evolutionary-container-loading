@@ -8,7 +8,7 @@ import scala.math._
 import Kevin._
 
 case class LoadedContainer(container: Container, loadedBoxes: Seq[LoadedBox], skippedBoxes: Seq[Box])
-case class LoadedBox(box: Box, rotation: Rotation3D, position: Position3D)
+case class LoadedBox(box: Box, rotation: BoxRotation, position: Position3D)
 
 object ContainerLoader {
 	
@@ -29,87 +29,78 @@ object ContainerLoader {
 	 * - Kistenrotation wird nicht durchgeführt, da zu langsam
 	 * - keine Kriterien für Bevorzugung "guter" Plätze, z.B. maximale Berührungsfläche
 	 */
-	def loadLayer(container: Container, boxLoadingOrder: Seq[Box]): LoadedContainer = {
+	def loadLayer(container: Container, boxLoadingOrder: Seq[(Box, BoxRotation)]): LoadedContainer = {
 				
 		val layer = Array.ofDim[Int](container.size.depth, container.size.width)
 
 		var loadedBoxes: List[LoadedBox] = Nil
 		var skippedBoxes: List[Box] = Nil
 		var stopLoading = false
-		for (box <- boxLoadingOrder) {
+		for ((box, rotation) <- boxLoadingOrder) {
 			if (!stopLoading) {
-				val maxHeight = container.size.height - box.size.height
-				var possiblePositions = 
-					Helpers.findFlatSurfaces(layer, new Dimension2D(box.size.width, box.size.depth), maxHeight)
 				
-				var rotation = Rotation3D(false, false, false)
-					
-				if (possiblePositions.isEmpty) {
-					// try to rotate the box to fit it in
-					breakable {
-						val rotations = boolVariations
-						val allowedRotations = rotations.filter { case (x,y,z) =>
-							if (!x && x == y && y == z) {
-								false
-							} else if (x && !box.constraints.allowedRotations.x) {
-								false
-							} else if (y && !box.constraints.allowedRotations.y) {
-								false
-							} else if (z && !box.constraints.allowedRotations.z) {
-								false
-							} else {
-								true
-							}
-						}
-
-						for ((rotateX, rotateY, rotateZ) <- allowedRotations) {
-							rotation = Rotation3D(rotateX, rotateY, rotateZ) 
-							val rotatedBoxSize = rotation.rotateCuboid(box.size)
-							val maxHeight = container.size.height - rotatedBoxSize.height
-							
-							possiblePositions = 
-								Helpers.findFlatSurfaces(
-										layer, 
-										new Dimension2D(rotatedBoxSize.width, rotatedBoxSize.depth),
-										maxHeight)
-										
-							if (!possiblePositions.isEmpty) {
-								break
-							}
-						}
-					}
-				}
-					
+				val rotatedBoxSize = rotation.rotateDimensions(box.size)
+				val maxHeight = container.size.height - rotatedBoxSize.height
+				
+				var possiblePositions = 
+					Helpers.findFlatSurfaces(
+							layer, 
+							new Dimension2D(rotatedBoxSize.width,rotatedBoxSize.depth), 
+							maxHeight)
+				
 				if (possiblePositions.isEmpty) {
 					stopLoading = true
 					skippedBoxes ::= box
 				} else {
-//					val minHeightPosition = possiblePositions.min(new Ordering[Position2D] {
-//						def compare(first: Position2D, second: Position2D): Int = {
-//							layer(first.y)(first.x) compare layer(second.y)(second.x)
+		
+					// TODO first fit ist letztlich auch nicht schlechter (?) als folgendes:
+//					var highestContactPosition = possiblePositions(0)
+//					var highestContactSum = 0
+//					
+//					for (pos <- possiblePositions) {
+//						val boxY = layer(pos.y)(pos.x)
+//						var contactSum = 0
+//						for {
+//							x <- (pos.x - 1) to (pos.x + rotatedBoxSize.width)
+//							z <- List(pos.y - 1, pos.y + rotatedBoxSize.depth)
+//						} {
+//							if (x == -1 || z == -1 || x == container.size.width || z == container.size.depth) {
+//								contactSum += rotatedBoxSize.height
+//							} else {
+//								val height = layer(z)(x)
+//								if (height > boxY) {
+//									contactSum += height - boxY
+//								}
+//							}
 //						}
-//					})
+//						for {
+//							x <- List(pos.x - 1, pos.x + rotatedBoxSize.width)
+//							z <- pos.y until (pos.y + rotatedBoxSize.depth) 
+//						} {
+//							if (x == -1 || z == -1 || x == container.size.width || z == container.size.depth) {
+//								contactSum += rotatedBoxSize.height
+//							} else {
+//								val height = layer(z)(x)
+//								if (height > boxY) {
+//									contactSum += height - boxY
+//								}
+//							}
+//						}
+//						if (contactSum > highestContactSum) {
+//							highestContactSum = contactSum
+//							highestContactPosition = pos
+//						}
+//					}
+					
+					
 					val firstPosition = possiblePositions(0)
-					//val firstPosition = minHeightPosition
+					//val firstPosition = highestContactPosition
 					val x = firstPosition.x
 					val z = firstPosition.y
 					val y = layer(z)(x)
-					
-					/*
-					 * TODO
-					 * Die Berührungsfläche lässt sich leicht berechnen mit Hilfe des Layers!
-					 * Es müssen einfach alle um die Boxposition umliegenden Höhenwerte betrachtet
-					 * werden -- mit Sonderbehandlung für die Containerwände.
-					 * Dafür müssen natürlich alle surfaces gefunden werden, statt nur einem. 
-					 * => findFlatSurfaces ist der Flaschenhals hier -> muss schneller werden!
-					 * 
-					 * Rotation könnte in den Fällen angewandt werden, in denen es nicht möglich ist,
-					 * eine Box zu positionieren.
-					 */
 										
 					loadedBoxes ::= LoadedBox(box, rotation, Position3D(x,y,z))
 					// adjust layer -> add box height to surface
-					val rotatedBoxSize = rotation.rotateCuboid(box.size)
 					for (layerX <- x until x + rotatedBoxSize.width;
 					     layerY <- z until z + rotatedBoxSize.depth) {
 						layer(layerY)(layerX) += rotatedBoxSize.height
@@ -216,18 +207,7 @@ object ContainerLoader {
 		 *    -> immer noch relativ viel, problematisch bei paralleler Fitnessberechnung
 		 *    
 		 */
-	
-	private val boolVariations: List[(Boolean, Boolean, Boolean)] = {
-		var list = List[(Boolean, Boolean, Boolean)]()
-		for {
-			b1 <- List(true, false)
-			b2 <- List(true, false)
-			b3 <- List(true, false)
-		} {
-			list ::= (b1, b2, b3)
-		}
-		list
-	}
+
 }
 
 

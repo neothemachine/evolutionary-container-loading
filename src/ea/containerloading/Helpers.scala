@@ -20,9 +20,9 @@ object Helpers {
 			y <- matrixHeight - 2 to 0 by -1
 		    x <- 0 until matrixWidth
 		} {
-			if (matrix(y)(x)  > maxHeight) {
+			if (matrix(y)(x) > maxHeight) {
 				a(y)(x) = -1
-			} else if (matrix(y)(x)  == matrix(y+1)(x)) {
+			} else if (matrix(y)(x) == matrix(y+1)(x)) {
 				a(y)(x) = a(y+1)(x) + 1
 			}
 		}
@@ -39,7 +39,9 @@ object Helpers {
 				} else {
 					current_width += 1
 					if (current_width >= surfaceSize.width) {
-						resultPositions ::= Position2D(x - surfaceSize.width + 1, y)
+						// TODO im Moment wird first fit benutzt -> nur 1 Ergebnis notwendig!
+						//resultPositions ::= Position2D(x - surfaceSize.width + 1, y)
+						return List(Position2D(x - surfaceSize.width + 1, y))
 					}
 				}
 			}

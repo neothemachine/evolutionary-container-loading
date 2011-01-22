@@ -16,15 +16,16 @@ class ContainerLoaderTest {
     def loadWithLayerApproach() = {
 		
 		val container = Container(Dimension3D(10,10,10))
+		val r = BoxRotation(false, false, false)
 		val boxLoadingOrder = List(
-			Box(1, Dimension3D(5,5,5)),
-			Box(2, Dimension3D(5,5,5)),
-			Box(3, Dimension3D(5,5,5)),
-			Box(4, Dimension3D(5,5,5)),
-			Box(5, Dimension3D(5,5,5)),
-			Box(6, Dimension3D(5,5,5)),
-			Box(7, Dimension3D(5,5,5)),
-			Box(8, Dimension3D(5,5,5))
+			(Box(1, Dimension3D(5,5,5)), r),
+			(Box(2, Dimension3D(5,5,5)), r),
+			(Box(3, Dimension3D(5,5,5)), r),
+			(Box(4, Dimension3D(5,5,5)), r),
+			(Box(5, Dimension3D(5,5,5)), r),
+			(Box(6, Dimension3D(5,5,5)), r),
+			(Box(7, Dimension3D(5,5,5)), r),
+			(Box(8, Dimension3D(5,5,5)), r)
 			)
 		
 		val loadingResult = ContainerLoader.loadLayer(container, boxLoadingOrder)

@@ -37,24 +37,24 @@ object Main {
 //			        Dimension3D(4,10,8) -> (50, BoxConstraints(widthVertical = true, depthVertical = true))
 //			        ))
 		
-		// thpack9 - 47
-		val problem = new ContainerProblem(
-			containerSize = Dimension3D(60, 43, 25),
-			boxSizeFrequencies =
-				Map(Dimension3D(13,11,21) -> (25, BoxConstraints(widthVertical = true, depthVertical = true)),
-			        Dimension3D(13,19,11) -> (20, BoxConstraints(widthVertical = true, depthVertical = true)),
-			        Dimension3D(14,6,10)  -> (20, BoxConstraints(widthVertical = true, depthVertical = true)),
-			        Dimension3D(13,5,8)   -> (34, BoxConstraints(widthVertical = true, depthVertical = true))
-			        ))
-		
-//		// thpack1 - 1
+//		// thpack9 - 47
 //		val problem = new ContainerProblem(
-//			containerSize = Dimension3D(233, 220, 587),
+//			containerSize = Dimension3D(60, 43, 25),
 //			boxSizeFrequencies =
-//				Map(Dimension3D(76,30,108) -> (40, BoxConstraints(widthVertical = false, depthVertical = false)),
-//			        Dimension3D(43,25,110) -> (33, BoxConstraints(widthVertical = true, depthVertical = false)),
-//			        Dimension3D(81,55,92)  -> (39, BoxConstraints(widthVertical = true, depthVertical = true))
+//				Map(Dimension3D(13,11,21) -> (25, BoxConstraints(widthVertical = true, depthVertical = true)),
+//			        Dimension3D(13,19,11) -> (20, BoxConstraints(widthVertical = true, depthVertical = true)),
+//			        Dimension3D(14,6,10)  -> (20, BoxConstraints(widthVertical = true, depthVertical = true)),
+//			        Dimension3D(13,5,8)   -> (34, BoxConstraints(widthVertical = true, depthVertical = true))
 //			        ))
+		
+		// thpack1 - 1
+		val problem = new ContainerProblem(
+			containerSize = Dimension3D(233, 220, 587),
+			boxSizeFrequencies =
+				Map(Dimension3D(76,30,108) -> (40, BoxConstraints(widthVertical = false, depthVertical = false)),
+			        Dimension3D(43,25,110) -> (33, BoxConstraints(widthVertical = true, depthVertical = false)),
+			        Dimension3D(81,55,92)  -> (39, BoxConstraints(widthVertical = true, depthVertical = true))
+			        ))
 		
 //		// thpack2 - 1
 //		val problem = new ContainerProblem(
@@ -125,15 +125,14 @@ object Main {
 			populationSize = 30,
 			eliteCount = 0,
 			generationCount = 100,
-			crossover = true,
-			mutation = true)
+			crossoverProbability = Probability.ONE)
 		
 		val meanStdDevFitnessSeries = new org.jfree.data.xy.YIntervalSeries("Mean Fitness and StdDev")
 		val maxFitnessSeries = new org.jfree.data.xy.XYSeries("Max Fitness")
 		
 		val fitnessFormat = new DecimalFormat("#.#####")
 		
-		val bestCandidate = runner.runEvolution(problem,
+		val bestBoxLoadingOrder = runner.runEvolution(problem,
 			listener = Some(popData => {
 				if (popData.getGenerationNumber % 1 == 0) {
 					println(popData.getGenerationNumber + " " +
@@ -164,14 +163,13 @@ object Main {
 		chartFrame.pack
 		chartFrame.setVisible(true)
 		
-		val boxLoadingOrder = bestCandidate.toList.map(problem.boxFromId(_))
-		val loadingResult = ContainerLoader.loadLayer(problem.container, boxLoadingOrder)
+		val loadingResult = ContainerLoader.loadLayer(problem.container, bestBoxLoadingOrder)
 		
 		println("skipped: " + loadingResult.skippedBoxes.length)
 		
 		val rotatedBoxes = loadingResult.loadedBoxes.filter { b =>
 			b.rotation match { 
-				case Rotation3D(false,false,false) => false
+				case BoxRotation(false,false,false) => false
 				case _ => true
 			} }
 		println("rotated boxes: " + rotatedBoxes.size)

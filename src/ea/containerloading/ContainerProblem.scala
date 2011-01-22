@@ -2,7 +2,44 @@ package ea.containerloading
 
 case class Box(id: Int, size: Dimension3D, constraints: BoxConstraints = BoxConstraints(true, true))
 case class BoxConstraints(widthVertical: Boolean, depthVertical: Boolean) {
-	val allowedRotations = Rotation3D(depthVertical, true, widthVertical)
+	
+	private val widthVerticalRotations = 
+		if (widthVertical) List(BoxRotation(true, false, false), BoxRotation(true, false, true))
+		else List()
+		
+	private val depthVerticalRotations = 
+		if (depthVertical) List(BoxRotation(false, true, false), BoxRotation(false, true, true))
+		else List()
+	
+	val allowedRotations = 
+		BoxRotation(false, false, false) :: BoxRotation(false, false, true) ::
+		widthVerticalRotations ::: depthVerticalRotations
+}
+case class BoxRotation(widthVertical: Boolean, depthVertical: Boolean, rotateHorizontal: Boolean) {
+	require(!(widthVertical && depthVertical))
+	
+	def rotateDimensions(size: Dimension3D): Dimension3D = {
+		var w = size.width
+		var h = size.height
+		var d = size.depth
+		
+		if (widthVertical) {
+			val foo = w
+			w = h
+			h = foo
+		} else if (depthVertical) {
+			val foo = h
+			h = d
+			d = foo
+		}
+		
+		if (rotateHorizontal) {
+			val foo = w
+			w = d
+			d = foo
+		}
+		Dimension3D(w,h,d)
+	}
 }
 case class Container(size: Dimension3D)
 
@@ -10,8 +47,8 @@ class ContainerProblem(val container: Container, val boxSizeFrequencies: Map[Dim
 	
 	def this(containerSize: Dimension3D, boxSizeFrequencies: Map[Dimension3D, (Int, BoxConstraints)]) =
 		this(Container(containerSize), boxSizeFrequencies)
-		
-	private val boxIds = 0 to (boxSizeFrequencies.values.map(f => f._1).sum - 1)
+	
+	val boxIds = (0 until boxSizeFrequencies.values.map(f => f._1).sum).toList
 	
 	/**
 	 * weist jeder boxId eine Box zu
@@ -41,7 +78,7 @@ class ContainerProblem(val container: Container, val boxSizeFrequencies: Map[Dim
 	 * @return e.g. List(0,0,1,1,1,2,2,3,4,5,6,6)
 	 */
 	private def calculateOriginalBoxIndices(): List[Int] = {
-		var indices: List[Int] = Nil
+		var indices = List[Int]()
 		
 		for (boxCount <- boxSizeFrequencies) {
 			val currentBoxIndex = indices match {
