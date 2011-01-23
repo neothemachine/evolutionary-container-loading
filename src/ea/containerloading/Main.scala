@@ -9,20 +9,37 @@ import ea.containerloading.vis._
 import org.jfree.chart._
 import org.jfree.data.xy._
 
+import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.DefaultFontMapper;
+import com.lowagie.text.pdf.FontMapper;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfTemplate;
+import com.lowagie.text.pdf.PdfWriter;
+
 import java.text.{DecimalFormat}
 
 object Main {
 	
 	def main(args : Array[String]) : Unit = {
 
-//		val problem = new ContainerProblem(
-//			containerSize = Dimension3D(50, 50, 50),
-//			boxSizeFrequencies =
-//				Map(Dimension3D(10,10,10) -> (5,  BoxConstraints(widthVertical = true, depthVertical = true)),
-//			        Dimension3D(20,10,10) -> (15, BoxConstraints(widthVertical = true, depthVertical = true)),
-//			        Dimension3D(30,10,20) -> (10, BoxConstraints(widthVertical = true, depthVertical = true)),
-//			        Dimension3D(50,10,10) -> (5,  BoxConstraints(widthVertical = true, depthVertical = true))
-//			        ))
+		val problem = new ContainerProblem(
+			containerSize = Dimension3D(50, 50, 50),
+			boxSizeFrequencies =
+				Map(Dimension3D(10,10,12) -> (5,  BoxConstraints(widthVertical = true, depthVertical = true)),
+			        Dimension3D(20,10,10) -> (15, BoxConstraints(widthVertical = true, depthVertical = true)),
+			        Dimension3D(30,10,20) -> (10, BoxConstraints(widthVertical = true, depthVertical = true)),
+			        Dimension3D(50,10,10) -> (5,  BoxConstraints(widthVertical = true, depthVertical = true))
+			        ))
 	
 //		val problem = new ContainerProblem(
 //			containerSize = Dimension3D(10, 10, 10),
@@ -103,30 +120,30 @@ object Main {
 //			        Dimension3D(200,200,900)  -> (15, BoxConstraints(widthVertical = false, depthVertical = false))
 //			        ))
 		
-		// thpack8 - 2
-		val problem = new ContainerProblem(
-			containerSize = Dimension3D(2000, 1000, 3000),
-			boxSizeFrequencies =
-				Map(Dimension3D(375,250,400) -> (29, BoxConstraints(widthVertical = false, depthVertical = false)),
-			        Dimension3D(400,150,400) -> (37, BoxConstraints(widthVertical = false, depthVertical = false)),
-			        Dimension3D(300,200,300) -> (34, BoxConstraints(widthVertical = false, depthVertical = false)),
-			        Dimension3D(375,400,500) -> (19, BoxConstraints(widthVertical = false, depthVertical = false)),
-			        Dimension3D(275,200,800) -> (16, BoxConstraints(widthVertical = false, depthVertical = false)),
-			        Dimension3D(350,350,450) -> (17, BoxConstraints(widthVertical = false, depthVertical = false)),
-			        Dimension3D(200,125,200) -> (23, BoxConstraints(widthVertical = false, depthVertical = false))
-			        ))
+//		// thpack8 - 2
+//		val problem = new ContainerProblem(
+//			containerSize = Dimension3D(2000, 1000, 3000),
+//			boxSizeFrequencies =
+//				Map(Dimension3D(375,250,400) -> (29, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(400,150,400) -> (37, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(300,200,300) -> (34, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(375,400,500) -> (19, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(275,200,800) -> (16, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(350,350,450) -> (17, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(200,125,200) -> (23, BoxConstraints(widthVertical = false, depthVertical = false))
+//			        ))
 		
 		
 		val runner = new EvolutionaryContainerLoading(
-			//islands = Some(IslandConfig(epochLength = 50, migrantCount = 5)),
-			islands = None,
+			islands = Some(IslandConfig(epochLength = 50, migrantCount = 5)),
+			//islands = None,
 			new SigmaScaling, 
 			//new RankSelection,
 			populationSize = 50,
 			eliteCount = 0,
 			//termination = new TargetFitness(0.8, true),
 			//termination = new GenerationCount(100),
-			termination = new ElapsedTime(1*60*1000),// 1h
+			termination = new ElapsedTime(1*1*1000),// 1h
 			crossoverProbability = Probability.EVENS)
 		
 		val fitnessFormat = new DecimalFormat("0.0000")
@@ -134,7 +151,8 @@ object Main {
 		val maxFitnessSeries = new org.jfree.data.xy.XYSeries("Max Fitness")
 		
 		runner.addListener(popData => {
-				println("epoch " + popData.getGenerationNumber + " - " +
+				val evoType = if (runner.islands.isDefined) "epoch" else "generation"
+				println(evoType + " " + popData.getGenerationNumber + " - " +
 						"best fitness: " + fitnessFormat.format(popData.getBestCandidateFitness) + " " + 
 						"mean fitness: " + fitnessFormat.format(popData.getMeanFitness) + " " +
 						"std dev: " + fitnessFormat.format(popData.getFitnessStandardDeviation) + " -- " + 
@@ -162,13 +180,13 @@ object Main {
 		val meanStdDevFitnessData = new org.jfree.data.xy.YIntervalSeriesCollection
 		meanStdDevFitnessData.addSeries(meanStdDevFitnessSeries)
 		val maxFitnessData = new org.jfree.data.xy.XYSeriesCollection(maxFitnessSeries)
-		
 		val chart = createStatisticalXYLineChart(
 				"Container size: " + problem.container.size + ", boxes: " + problem.boxes.size,
-				"Generation",
+				if (runner.islands.isDefined) "Epoch" else "Generation",
 				"Fitness",
 				meanStdDevFitnessData, maxFitnessData)
 		val chartFrame = new org.jfree.chart.ChartFrame("Fitness", chart)
+		addSaveAsPdfMenuButton(chartFrame)
 		chartFrame.pack
 		chartFrame.setVisible(true)
 		
@@ -201,5 +219,48 @@ object Main {
 		val theme = new org.jfree.chart.StandardChartTheme("JFree")
 		theme.apply(chart)
 		chart
+	}
+	
+	private def addSaveAsPdfMenuButton(frame: ChartFrame) = {
+		val savePdfItem = new javax.swing.JMenuItem("Save as PDF...")
+
+		savePdfItem.addActionListener(new java.awt.event.ActionListener {
+			def actionPerformed(e: java.awt.event.ActionEvent) = {
+				val fileChooser = new javax.swing.JFileChooser
+				val filter = new org.jfree.ui.ExtensionFileFilter("PDF file", ".pdf")
+				fileChooser.addChoosableFileFilter(filter)
+				
+				val option = fileChooser.showSaveDialog(frame)
+				if (option == javax.swing.JFileChooser.APPROVE_OPTION) {
+					var filename = fileChooser.getSelectedFile.getPath
+					if (!filename.endsWith(".pdf")) {
+						filename += ".pdf"
+					}
+					saveChartAsPDF(
+							new File(filename),
+							frame.getChartPanel.getChart,
+							Dimension2D(frame.getWidth, frame.getHeight))
+				}
+			}
+		})
+		
+		frame.getChartPanel.getPopupMenu.add(savePdfItem)
+	}
+	
+	private def saveChartAsPDF(file: File, chart: JFreeChart, size: Dimension2D, mapper: FontMapper = new DefaultFontMapper) = {
+		val out = new BufferedOutputStream(new FileOutputStream(file))
+		val pagesize = new Rectangle(size.width, size.height)
+		val document = new Document(pagesize, 50, 50, 50, 50)
+		val writer = PdfWriter.getInstance(document, out)
+		document.open
+		val cb = writer.getDirectContent
+		val tp = cb.createTemplate(size.width, size.height)
+		val g2 = tp.createGraphics(size.width, size.height, mapper)
+		val r2D = new Rectangle2D.Double(0, 0, size.width, size.height)
+		chart.draw(g2, r2D)
+		g2.dispose
+		cb.addTemplate(tp, 0, 0)
+		document.close
+		out.close
 	}
 }

@@ -15,7 +15,7 @@ import java.util.{List => jList, ArrayList => jArrayList}
 case class IslandConfig(epochLength: Int, migrantCount: Int)
 
 class EvolutionaryContainerLoading(
-			 islands: Option[IslandConfig],
+			 val islands: Option[IslandConfig],
 			 selectionStrategy: SelectionStrategy[_ >: jList[(Box, BoxRotation)]],
              populationSize: Int,
              eliteCount: Int,
