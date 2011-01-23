@@ -30,6 +30,8 @@ import java.text.{DecimalFormat}
 
 object Main {
 	
+	var currentEpoch = 0
+	
 	def main(args : Array[String]) : Unit = {
 
 		val problem = new ContainerProblem(
@@ -142,49 +144,70 @@ object Main {
 			populationSize = 50,
 			eliteCount = 0,
 			//termination = new TargetFitness(0.8, true),
-			//termination = new GenerationCount(100),
-			termination = new ElapsedTime(1*1*1000),// 1h
+			termination = new GenerationCount(10),
+			//termination = new ElapsedTime(1*60*1000),
 			crossoverProbability = Probability.EVENS)
 		
 		val fitnessFormat = new DecimalFormat("0.0000")
-		val meanStdDevFitnessSeries = new org.jfree.data.xy.YIntervalSeries("Mean Fitness and StdDev")
-		val maxFitnessSeries = new org.jfree.data.xy.XYSeries("Max Fitness")
+		val meanStdDevFitnessSeries = new YIntervalSeries("Mean Fitness and StdDev")
+		val maxFitnessSeries = new XYSeries("Max Fitness")
+		
+		val island0MeanFitness = new XYSeries("Mean Fitness (Island 0)")
+		val island1MeanFitness = new XYSeries("Mean Fitness (Island 1)")
 		
 		runner.addListener(popData => {
 				val evoType = if (runner.islands.isDefined) "epoch" else "generation"
-				println(evoType + " " + popData.getGenerationNumber + " - " +
+				println(evoType + " " + (popData.getGenerationNumber + 1) + " - " +
 						"best fitness: " + fitnessFormat.format(popData.getBestCandidateFitness) + " " + 
 						"mean fitness: " + fitnessFormat.format(popData.getMeanFitness) + " " +
 						"std dev: " + fitnessFormat.format(popData.getFitnessStandardDeviation) + " -- " + 
 						popData.getElapsedTime / 1000 + "s so far")
 
 				meanStdDevFitnessSeries.add(
-						popData.getGenerationNumber, 
+						popData.getGenerationNumber + 1,
 						popData.getMeanFitness, 
 						popData.getMeanFitness - popData.getFitnessStandardDeviation,
 						popData.getMeanFitness + popData.getFitnessStandardDeviation)
 				
-				maxFitnessSeries.add(popData.getGenerationNumber, popData.getBestCandidateFitness)
+				maxFitnessSeries.add(popData.getGenerationNumber + 1, popData.getBestCandidateFitness)
+				
+				currentEpoch += 1
 			})
 			
 		runner.addIslandListener((islandIndex, popData) => {
-				println("island " + islandIndex + ", generation " + popData.getGenerationNumber + " - " +
+				val realGenerationNumber = 
+					(popData.getGenerationNumber + 1) + 
+					currentEpoch * runner.islands.get.epochLength
+			
+				println("island " + islandIndex + ", " + 
+						"generation " + (popData.getGenerationNumber + 1) + " (" + realGenerationNumber + ") - " +
 						"best fitness: " + fitnessFormat.format(popData.getBestCandidateFitness) + " " + 
 						"mean fitness: " + fitnessFormat.format(popData.getMeanFitness) + " " +
 						"std dev: " + fitnessFormat.format(popData.getFitnessStandardDeviation) + " -- " + 
 						popData.getElapsedTime / 1000 + "s so far")
+						
+				islandIndex match {
+					case 0 => island0MeanFitness.add(realGenerationNumber, popData.getMeanFitness)
+					case 1 => island1MeanFitness.add(realGenerationNumber, popData.getMeanFitness)
+				}
 		})
 		
 		val bestBoxLoadingOrder = runner.runEvolution(problem)
 		
-		val meanStdDevFitnessData = new org.jfree.data.xy.YIntervalSeriesCollection
+		val meanStdDevFitnessData = new YIntervalSeriesCollection
 		meanStdDevFitnessData.addSeries(meanStdDevFitnessSeries)
-		val maxFitnessData = new org.jfree.data.xy.XYSeriesCollection(maxFitnessSeries)
+		val maxFitnessData = new XYSeriesCollection(maxFitnessSeries)
 		val chart = createStatisticalXYLineChart(
 				"Container size: " + problem.container.size + ", boxes: " + problem.boxes.size,
 				if (runner.islands.isDefined) "Epoch" else "Generation",
 				"Fitness",
-				meanStdDevFitnessData, maxFitnessData)
+				meanStdDevFitnessData, maxFitnessData,
+				if (runner.islands.isDefined) Some("Generation") else None,
+				if (runner.islands.isDefined) { 
+					val c = new XYSeriesCollection(island0MeanFitness)
+					c.addSeries(island1MeanFitness)
+					Some(c)
+				} else None)
 		val chartFrame = new org.jfree.chart.ChartFrame("Fitness", chart)
 		addSaveAsPdfMenuButton(chartFrame)
 		chartFrame.pack
@@ -204,18 +227,36 @@ object Main {
 		CandidateViewer.showCandidate(loadingResult)
 	}
 	
-	private def createStatisticalXYLineChart(title: String, xLabel: String, yLabel: String, data: IntervalXYDataset, data2: XYDataset): JFreeChart = {
+	private def createStatisticalXYLineChart(title: String, xLabel: String, yLabel: String, data: IntervalXYDataset, data2: XYDataset, xLabel2: Option[String], data3: Option[XYDataset]): JFreeChart = {
+		
 		val xAxis = new org.jfree.chart.axis.NumberAxis(xLabel)
 		xAxis.setStandardTickUnits(org.jfree.chart.axis.NumberAxis.createIntegerTickUnits)
-		val yAxis = new org.jfree.chart.axis.NumberAxis(yLabel)
+				
 		val renderer = new org.jfree.chart.renderer.xy.DeviationRenderer(true, false)
 		val renderer2 = new org.jfree.chart.renderer.xy.XYLineAndShapeRenderer(true, false)
-		val plot = new org.jfree.chart.plot.XYPlot(data, xAxis, yAxis, renderer)
-		plot.setDataset(1, data2)
-		plot.setRenderer(1, renderer2)
+		val leftPlot = new org.jfree.chart.plot.XYPlot(data, xAxis, null, renderer)
+		leftPlot.setDataset(1, data2)
+		leftPlot.setRenderer(1, renderer2)
+		leftPlot.setOrientation(org.jfree.chart.plot.PlotOrientation.VERTICAL)
 		
-		plot.setOrientation(org.jfree.chart.plot.PlotOrientation.VERTICAL)
-		val chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, true)
+		val yAxis = new org.jfree.chart.axis.NumberAxis(yLabel)
+		val combinedPlot = new org.jfree.chart.plot.CombinedRangeXYPlot(yAxis)
+		combinedPlot.add(leftPlot, 1)
+		
+		if (xLabel2.isDefined && data3.isDefined) {
+			val renderer3 = new org.jfree.chart.renderer.xy.XYLineAndShapeRenderer(true, false)
+			renderer3.setAutoPopulateSeriesPaint(false)
+			renderer3.setSeriesPaint(0, java.awt.Color.DARK_GRAY)
+			renderer3.setSeriesPaint(1, java.awt.Color.MAGENTA)
+						
+			val xAxis = new org.jfree.chart.axis.NumberAxis(xLabel2.get)
+			xAxis.setStandardTickUnits(org.jfree.chart.axis.NumberAxis.createIntegerTickUnits)
+			val rightPlot = new org.jfree.chart.plot.XYPlot(data3.get, xAxis, null, renderer3)
+			rightPlot.setOrientation(org.jfree.chart.plot.PlotOrientation.VERTICAL)
+			combinedPlot.add(rightPlot, 2)
+		}
+		
+		val chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, combinedPlot, true)
 		val theme = new org.jfree.chart.StandardChartTheme("JFree")
 		theme.apply(chart)
 		chart
@@ -239,7 +280,7 @@ object Main {
 					saveChartAsPDF(
 							new File(filename),
 							frame.getChartPanel.getChart,
-							Dimension2D(frame.getWidth, frame.getHeight))
+							Dimension2D(frame.getChartPanel.getWidth, frame.getChartPanel.getHeight))
 				}
 			}
 		})
