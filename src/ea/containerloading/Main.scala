@@ -29,33 +29,15 @@ object Main {
 //			boxSizeFrequencies =
 //				Map(Dimension3D(10,10,5) -> (2, BoxConstraints(widthVertical = true, depthVertical = true))
 //					))
-		
-//		// thpack9 - 1
+			
+//		// thpack1 - 1
 //		val problem = new ContainerProblem(
-//			containerSize = Dimension3D(6, 10, 10),
+//			containerSize = Dimension3D(233, 220, 587),
 //			boxSizeFrequencies =
-//				Map(Dimension3D(6,8,2)  -> (20, BoxConstraints(widthVertical = true, depthVertical = true)),
-//			        Dimension3D(4,10,8) -> (50, BoxConstraints(widthVertical = true, depthVertical = true))
+//				Map(Dimension3D(76,30,108) -> (40, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(43,25,110) -> (33, BoxConstraints(widthVertical = true, depthVertical = false)),
+//			        Dimension3D(81,55,92)  -> (39, BoxConstraints(widthVertical = true, depthVertical = true))
 //			        ))
-		
-//		// thpack9 - 47
-//		val problem = new ContainerProblem(
-//			containerSize = Dimension3D(60, 43, 25),
-//			boxSizeFrequencies =
-//				Map(Dimension3D(13,11,21) -> (25, BoxConstraints(widthVertical = true, depthVertical = true)),
-//			        Dimension3D(13,19,11) -> (20, BoxConstraints(widthVertical = true, depthVertical = true)),
-//			        Dimension3D(14,6,10)  -> (20, BoxConstraints(widthVertical = true, depthVertical = true)),
-//			        Dimension3D(13,5,8)   -> (34, BoxConstraints(widthVertical = true, depthVertical = true))
-//			        ))
-		
-		// thpack1 - 1
-		val problem = new ContainerProblem(
-			containerSize = Dimension3D(233, 220, 587),
-			boxSizeFrequencies =
-				Map(Dimension3D(76,30,108) -> (40, BoxConstraints(widthVertical = false, depthVertical = false)),
-			        Dimension3D(43,25,110) -> (33, BoxConstraints(widthVertical = true, depthVertical = false)),
-			        Dimension3D(81,55,92)  -> (39, BoxConstraints(widthVertical = true, depthVertical = true))
-			        ))
 		
 //		// thpack2 - 1
 //		val problem = new ContainerProblem(
@@ -121,16 +103,30 @@ object Main {
 //			        Dimension3D(200,200,900)  -> (15, BoxConstraints(widthVertical = false, depthVertical = false))
 //			        ))
 		
+		// thpack8 - 2
+		val problem = new ContainerProblem(
+			containerSize = Dimension3D(2000, 1000, 3000),
+			boxSizeFrequencies =
+				Map(Dimension3D(375,250,400) -> (29, BoxConstraints(widthVertical = false, depthVertical = false)),
+			        Dimension3D(400,150,400) -> (37, BoxConstraints(widthVertical = false, depthVertical = false)),
+			        Dimension3D(300,200,300) -> (34, BoxConstraints(widthVertical = false, depthVertical = false)),
+			        Dimension3D(375,400,500) -> (19, BoxConstraints(widthVertical = false, depthVertical = false)),
+			        Dimension3D(275,200,800) -> (16, BoxConstraints(widthVertical = false, depthVertical = false)),
+			        Dimension3D(350,350,450) -> (17, BoxConstraints(widthVertical = false, depthVertical = false)),
+			        Dimension3D(200,125,200) -> (23, BoxConstraints(widthVertical = false, depthVertical = false))
+			        ))
+		
+		
 		val runner = new EvolutionaryContainerLoading(
-			islands = Some(IslandConfig(islandCount = 2, epochLength = 50, migrantCount = 5)),
-			//islands = None,
+			//islands = Some(IslandConfig(epochLength = 50, migrantCount = 5)),
+			islands = None,
 			new SigmaScaling, 
 			//new RankSelection,
 			populationSize = 50,
 			eliteCount = 0,
 			//termination = new TargetFitness(0.8, true),
 			//termination = new GenerationCount(100),
-			termination = new ElapsedTime(60*60*1000),// 1h
+			termination = new ElapsedTime(1*60*1000),// 1h
 			crossoverProbability = Probability.EVENS)
 		
 		val fitnessFormat = new DecimalFormat("0.0000")

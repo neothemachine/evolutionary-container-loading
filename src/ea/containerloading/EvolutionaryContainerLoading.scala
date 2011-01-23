@@ -12,7 +12,7 @@ import ea.watchmaker.Implicits._
 import scala.collection.JavaConversions._
 import java.util.{List => jList, ArrayList => jArrayList}
 
-case class IslandConfig(islandCount: Int, epochLength: Int, migrantCount: Int)
+case class IslandConfig(epochLength: Int, migrantCount: Int)
 
 class EvolutionaryContainerLoading(
 			 islands: Option[IslandConfig],
@@ -49,9 +49,7 @@ class EvolutionaryContainerLoading(
 				new ListOrderCrossover[(Box, BoxRotation)](crossoverProbability),
 				new ListOrderMutation[(Box, BoxRotation)] // TODO parameter
 			))
-		
-
-				
+						
 		val boxesAndRotation = problem.boxes.map(box => (box, BoxRotation(false, false, false))).toList
 		val candidateFactory = new ListPermutationFactory(boxesAndRotation)
 		
