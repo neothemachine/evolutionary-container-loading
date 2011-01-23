@@ -34,14 +34,14 @@ object Main {
 	
 	def main(args : Array[String]) : Unit = {
 
-		val problem = new ContainerProblem(
-			containerSize = Dimension3D(50, 50, 50),
-			boxSizeFrequencies =
-				Map(Dimension3D(10,10,12) -> (5,  BoxConstraints(widthVertical = true, depthVertical = true)),
-			        Dimension3D(20,10,10) -> (15, BoxConstraints(widthVertical = true, depthVertical = true)),
-			        Dimension3D(30,10,20) -> (10, BoxConstraints(widthVertical = true, depthVertical = true)),
-			        Dimension3D(50,10,10) -> (5,  BoxConstraints(widthVertical = true, depthVertical = true))
-			        ))
+//		val problem = new ContainerProblem(
+//			containerSize = Dimension3D(50, 50, 50),
+//			boxSizeFrequencies =
+//				Map(Dimension3D(10,10,12) -> (5,  BoxConstraints(widthVertical = true, depthVertical = true)),
+//			        Dimension3D(20,10,10) -> (15, BoxConstraints(widthVertical = true, depthVertical = true)),
+//			        Dimension3D(30,10,20) -> (10, BoxConstraints(widthVertical = true, depthVertical = true)),
+//			        Dimension3D(50,10,10) -> (5,  BoxConstraints(widthVertical = true, depthVertical = true))
+//			        ))
 	
 //		val problem = new ContainerProblem(
 //			containerSize = Dimension3D(10, 10, 10),
@@ -49,14 +49,14 @@ object Main {
 //				Map(Dimension3D(10,10,5) -> (2, BoxConstraints(widthVertical = true, depthVertical = true))
 //					))
 			
-//		// thpack1 - 1
-//		val problem = new ContainerProblem(
-//			containerSize = Dimension3D(233, 220, 587),
-//			boxSizeFrequencies =
-//				Map(Dimension3D(76,30,108) -> (40, BoxConstraints(widthVertical = false, depthVertical = false)),
-//			        Dimension3D(43,25,110) -> (33, BoxConstraints(widthVertical = true, depthVertical = false)),
-//			        Dimension3D(81,55,92)  -> (39, BoxConstraints(widthVertical = true, depthVertical = true))
-//			        ))
+		// thpack1 - 1
+		val problem = new ContainerProblem(
+			containerSize = Dimension3D(233, 220, 587),
+			boxSizeFrequencies =
+				Map(Dimension3D(76,30,108) -> (40, BoxConstraints(widthVertical = false, depthVertical = false)),
+			        Dimension3D(43,25,110) -> (33, BoxConstraints(widthVertical = true, depthVertical = false)),
+			        Dimension3D(81,55,92)  -> (39, BoxConstraints(widthVertical = true, depthVertical = true))
+			        ))
 		
 //		// thpack2 - 1
 //		val problem = new ContainerProblem(
@@ -135,18 +135,23 @@ object Main {
 //			        Dimension3D(200,125,200) -> (23, BoxConstraints(widthVertical = false, depthVertical = false))
 //			        ))
 		
+		val userAbort = new UserAbort
 		
 		val runner = new EvolutionaryContainerLoading(
-			islands = Some(IslandConfig(epochLength = 50, migrantCount = 5)),
-			//islands = None,
+			//islands = Some(IslandConfig(epochLength = 50, migrantCount = 5)),
+			islands = None,
 			new SigmaScaling, 
 			//new RankSelection,
 			populationSize = 50,
 			eliteCount = 0,
-			//termination = new TargetFitness(0.8, true),
-			termination = new GenerationCount(10),
-			//termination = new ElapsedTime(1*60*1000),
-			crossoverProbability = Probability.EVENS)
+			crossoverProbability = Probability.EVENS,
+			new TargetFitness(0.9, true),
+			new GenerationCount(100),
+			userAbort
+			//termination = new ElapsedTime(1*60*1000)
+			)
+		
+		showAbortWindow(userAbort)
 		
 		val fitnessFormat = new DecimalFormat("0.0000")
 		val meanStdDevFitnessSeries = new YIntervalSeries("Mean Fitness and StdDev")
@@ -225,6 +230,19 @@ object Main {
 		println("rotated boxes: " + rotatedBoxes.size)
 		
 		CandidateViewer.showCandidate(loadingResult)
+	}
+	
+	private def showAbortWindow(trigger: UserAbort) = {
+		val frame = new javax.swing.JFrame
+		val button = new javax.swing.JButton("request abort")
+		button.addActionListener(new java.awt.event.ActionListener {
+			def actionPerformed(e: java.awt.event.ActionEvent) = {
+				trigger.abort
+			}
+		})
+		frame.add(button)
+		frame.pack
+		frame.setVisible(true)
 	}
 	
 	private def createStatisticalXYLineChart(title: String, xLabel: String, yLabel: String, data: IntervalXYDataset, data2: XYDataset, xLabel2: Option[String], data3: Option[XYDataset]): JFreeChart = {

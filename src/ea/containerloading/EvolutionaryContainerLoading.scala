@@ -19,8 +19,8 @@ class EvolutionaryContainerLoading(
 			 selectionStrategy: SelectionStrategy[_ >: jList[(Box, BoxRotation)]],
              populationSize: Int,
              eliteCount: Int,
-             termination: TerminationCondition,
-             crossoverProbability: Probability) {
+             crossoverProbability: Probability,
+             termination: TerminationCondition*) {
 	
 	var listeners = List[PopulationData[_ <: jList[(Box, BoxRotation)]] => Unit]()
 	var islandListeners = List[(Int, PopulationData[_ <: jList[(Box, BoxRotation)]]) => Unit]()
@@ -98,7 +98,7 @@ class EvolutionaryContainerLoading(
 				}
 			})
 
-			islandEvolution.evolve(populationSize, eliteCount, islandConfig.epochLength, islandConfig.migrantCount, termination)					
+			islandEvolution.evolve(populationSize, eliteCount, islandConfig.epochLength, islandConfig.migrantCount, termination:_*)					
 		} else {
 
 			val engine = new GenerationalEvolutionEngine[jList[(Box, BoxRotation)]](
@@ -111,7 +111,7 @@ class EvolutionaryContainerLoading(
 			
 			listeners.foreach(engine.addEvolutionObserver(_))
 			
-			engine.evolve(populationSize, eliteCount, termination)		
+			engine.evolve(populationSize, eliteCount, termination:_*)		
 		}
 	
 	}
