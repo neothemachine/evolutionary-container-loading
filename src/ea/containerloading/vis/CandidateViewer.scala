@@ -12,10 +12,25 @@ object CandidateViewer {
 	def showCandidate(loaded: LoadedContainer) = {
 		
 		val universe = new SimpleUniverse
-		val scene = new BranchGroup
-				
-		setupUniverse(universe, scene)
+		universe.getViewer.getView.setTransparencySortingPolicy(View.TRANSPARENCY_SORT_GEOMETRY)
+		universe.getViewer.getView.setDepthBufferFreezeTransparent(false)
 		
+		val scene = new BranchGroup
+		setupMouseNavigation(universe, scene)
+		
+		// lighten up
+		val lightColor = new Color3f(0.3f, 0.3f, 0.3f)
+		val bounds = new BoundingSphere(new Point3d(0.0,0.0,0.0), 100.0)
+
+		val light1 = new AmbientLight
+		light1.setInfluencingBounds(bounds)
+		scene.addChild(light1)
+		
+		val light2Direction = new Vector3f(4.0f, -7.0f, -12.0f)
+		val light2 = new DirectionalLight(lightColor, light2Direction)
+		light2.setInfluencingBounds(bounds)
+		scene.addChild(light2)
+
 		// draw container
 		val norm: Float = loaded.container.size.width max 
 		                  loaded.container.size.depth max
@@ -39,7 +54,7 @@ object CandidateViewer {
 				(loaded.container.size.depth / norm) / 2 + 0.0001f, appearance)
 
 		scene.addChild(container)
-		
+						
 		// add everything to universe
 		universe.addBranchGraph(scene)
 		
@@ -50,9 +65,12 @@ object CandidateViewer {
 		// draw boxes
 		for (box <- loaded.loadedBoxes.reverse) {
 			val boxAppearance = new Appearance
-			val color = new Color3f(rng.nextFloat,rng.nextFloat,rng.nextFloat) 
+			val color = new Color3f(rng.nextFloat,rng.nextFloat,rng.nextFloat)
+			val material = new Material
+			material.setAmbientColor(color)
+			boxAppearance.setMaterial(material)
 			boxAppearance.setColoringAttributes(new ColoringAttributes(color,ColoringAttributes.NICEST))
-			boxAppearance.setTransparencyAttributes(new TransparencyAttributes(TransparencyAttributes.NICEST, 0.05f))
+			boxAppearance.setTransparencyAttributes(new TransparencyAttributes(TransparencyAttributes.NICEST, 0.3f))
 			
 			val boxPAppearance = new Appearance
 			boxPAppearance.setColoringAttributes(boxAppearance.getColoringAttributes)
@@ -77,14 +95,13 @@ object CandidateViewer {
 			val boxScene = new BranchGroup
 			boxScene.addChild(tg)
 			universe.addBranchGraph(boxScene)
-			Thread.sleep(1000)
-		}
+			Thread.sleep(500)
+		}	
 		println("all boxes were drawn")
 	}
 	
-	private def setupUniverse(universe: SimpleUniverse, scene: BranchGroup) = {
+	private def setupMouseNavigation(universe: SimpleUniverse, scene: BranchGroup) = {
 		
-		// set-up mouse navigation
 		val vpTrans = universe.getViewingPlatform.getViewPlatformTransform
 		val mouseBounds = new BoundingSphere(new Point3d, 1000.0)
 		
@@ -102,15 +119,5 @@ object CandidateViewer {
         mouseZoom.setTransformGroup(vpTrans)
         mouseZoom.setSchedulingBounds(mouseBounds)
         scene.addChild(mouseZoom)
-	
-		// lighten up
-		val light1Color = new Color3f(1.0f, 0.1f, 0.1f)
-		val bounds = new BoundingSphere(new Point3d(0.0,0.0,0.0), 100.0)
-
-		val light1Direction = new Vector3f(4.0f, -7.0f, -12.0f)
-		val light1 = new DirectionalLight(light1Color, light1Direction)
-		light1.setInfluencingBounds(bounds)
-
-		scene.addChild(light1)
 	}
 }
