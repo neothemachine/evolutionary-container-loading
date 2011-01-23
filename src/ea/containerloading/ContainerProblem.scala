@@ -40,6 +40,13 @@ case class BoxRotation(widthVertical: Boolean, depthVertical: Boolean, rotateHor
 		}
 		Dimension3D(w,h,d)
 	}
+	
+	/**
+	 * Hack, damit Boxengleichheit bei selber id erzwungen wird (und Rotation nicht als Unterschied gilt)
+	 * Grund: sonst kann crossover doppelte Boxen erzeugen, wenn Rotation anders ist 
+	 */
+	override def equals(that: Any): Boolean = true
+	override def hashCode: Int = 42
 }
 case class Container(size: Dimension3D)
 
@@ -64,7 +71,7 @@ class ContainerProblem(val container: Container, val boxSizeFrequencies: Map[Dim
 			val boxConstraints = boxSizeFrequencies(size)._2
 			mapping += (id -> Box(id, size, boxConstraints))
 		}
-		Map(mapping.toList:_*)		
+		Map(mapping.toList:_*)
 	}
 	
 	val boxes = boxIndexMapping.values 

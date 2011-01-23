@@ -4,12 +4,11 @@ import org.uncommons.watchmaker.framework.FitnessEvaluator
 import java.util.{List => jList}
 import scala.collection.JavaConversions._
 
-class PackingEvaluator(problem: ContainerProblem, boxIdMapper: BoxIdRotationMapper) extends FitnessEvaluator[jList[Int]] {
+class PackingEvaluator(problem: ContainerProblem) extends FitnessEvaluator[jList[(Box, BoxRotation)]] {
 
-	def getFitness(candidate: jList[Int], population: jList[_ <: jList[Int]]): Double = {
+	def getFitness(candidate: jList[(Box, BoxRotation)], population: jList[_ <: jList[(Box, BoxRotation)]]): Double = {
 		
-		val boxLoadingOrder = boxIdMapper.distinctBoxes(candidate)
-		val loadingResult = ContainerLoader.loadLayer(problem.container, boxLoadingOrder) 
+		val loadingResult = ContainerLoader.loadLayer(problem.container, candidate)
 				
 		// calculate and return space utilization ratio
 		val spaceUsed = loadingResult.loadedBoxes.map(loadedBox => loadedBox.box.size.volume).sum

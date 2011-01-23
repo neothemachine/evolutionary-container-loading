@@ -1,6 +1,7 @@
 package ea.containerloading
 
 import org.uncommons.watchmaker.framework.selection._
+import org.uncommons.watchmaker.framework.termination._
 import org.uncommons.watchmaker.framework._
 import org.uncommons.maths.random.Probability
 import scala.collection.JavaConversions._
@@ -121,25 +122,28 @@ object Main {
 //			        ))
 		
 		val runner = new EvolutionaryContainerLoading(
-			new RankSelection,
-			populationSize = 30,
+			islands = Some(IslandConfig(islandCount = 2, epochLength = 50, migrantCount = 5)),
+			//islands = None,
+			new SigmaScaling, 
+			//new RankSelection,
+			populationSize = 50,
 			eliteCount = 0,
-			generationCount = 100,
-			crossoverProbability = Probability.ONE)
+			//termination = new TargetFitness(0.8, true),
+			//termination = new GenerationCount(100),
+			termination = new ElapsedTime(60*60*1000),// 1h
+			crossoverProbability = Probability.EVENS)
 		
+		val fitnessFormat = new DecimalFormat("0.0000")
 		val meanStdDevFitnessSeries = new org.jfree.data.xy.YIntervalSeries("Mean Fitness and StdDev")
 		val maxFitnessSeries = new org.jfree.data.xy.XYSeries("Max Fitness")
 		
-		val fitnessFormat = new DecimalFormat("#.#####")
-		
-		val bestBoxLoadingOrder = runner.runEvolution(problem,
-			listener = Some(popData => {
-				if (popData.getGenerationNumber % 1 == 0) {
-					println(popData.getGenerationNumber + " " +
-							fitnessFormat.format(popData.getBestCandidateFitness) + " " + 
-							popData.getElapsedTime / 1000 + "s so far " +
-							popData.getBestCandidate)
-				}
+		runner.addListener(popData => {
+				println("epoch " + popData.getGenerationNumber + " - " +
+						"best fitness: " + fitnessFormat.format(popData.getBestCandidateFitness) + " " + 
+						"mean fitness: " + fitnessFormat.format(popData.getMeanFitness) + " " +
+						"std dev: " + fitnessFormat.format(popData.getFitnessStandardDeviation) + " -- " + 
+						popData.getElapsedTime / 1000 + "s so far")
+
 				meanStdDevFitnessSeries.add(
 						popData.getGenerationNumber, 
 						popData.getMeanFitness, 
@@ -148,7 +152,16 @@ object Main {
 				
 				maxFitnessSeries.add(popData.getGenerationNumber, popData.getBestCandidateFitness)
 			})
-		)
+			
+		runner.addIslandListener((islandIndex, popData) => {
+				println("island " + islandIndex + ", generation " + popData.getGenerationNumber + " - " +
+						"best fitness: " + fitnessFormat.format(popData.getBestCandidateFitness) + " " + 
+						"mean fitness: " + fitnessFormat.format(popData.getMeanFitness) + " " +
+						"std dev: " + fitnessFormat.format(popData.getFitnessStandardDeviation) + " -- " + 
+						popData.getElapsedTime / 1000 + "s so far")
+		})
+		
+		val bestBoxLoadingOrder = runner.runEvolution(problem)
 		
 		val meanStdDevFitnessData = new org.jfree.data.xy.YIntervalSeriesCollection
 		meanStdDevFitnessData.addSeries(meanStdDevFitnessSeries)
