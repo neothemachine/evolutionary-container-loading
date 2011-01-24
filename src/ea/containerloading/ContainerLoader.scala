@@ -5,8 +5,6 @@ import javax.vecmath._
 import util.control.Breaks._
 import scala.math._
 
-import Kevin._
-
 case class LoadedContainer(container: Container, loadedBoxes: Seq[LoadedBox], skippedBoxes: Seq[Box])
 case class LoadedBox(box: Box, rotation: BoxRotation, position: Position3D)
 
@@ -32,6 +30,8 @@ object ContainerLoader {
 	def loadLayer(container: Container, boxLoadingOrder: Seq[(Box, BoxRotation)]): LoadedContainer = {
 				
 		val layer = Array.ofDim[Int](container.size.depth, container.size.width)
+		
+		val surfaceFinder = new SurfaceFinder(layer)
 
 		var loadedBoxes: List[LoadedBox] = Nil
 		var skippedBoxes: List[Box] = Nil
@@ -41,12 +41,9 @@ object ContainerLoader {
 				
 				val rotatedBoxSize = rotation.rotateDimensions(box.size)
 				val maxHeight = container.size.height - rotatedBoxSize.height
-				
+								
 				var possiblePositions = 
-					Helpers.findFlatSurfaces(
-							layer, 
-							new Dimension2D(rotatedBoxSize.width,rotatedBoxSize.depth), 
-							maxHeight)
+					surfaceFinder.findFlatSurfaces(rotatedBoxSize.width, rotatedBoxSize.depth, maxHeight)
 				
 				if (possiblePositions.isEmpty) {
 					stopLoading = true
@@ -100,11 +97,9 @@ object ContainerLoader {
 					val y = layer(z)(x)
 										
 					loadedBoxes ::= LoadedBox(box, rotation, Position3D(x,y,z))
-					// adjust layer -> add box height to surface
-					for (layerX <- x until x + rotatedBoxSize.width;
-					     layerY <- z until z + rotatedBoxSize.depth) {
-						layer(layerY)(layerX) += rotatedBoxSize.height
-					}
+
+					surfaceFinder.updateArea(
+							x, z, rotatedBoxSize.width, rotatedBoxSize.depth, y + box.size.height)
 				}
 			} else {
 				skippedBoxes ::= box
@@ -113,44 +108,7 @@ object ContainerLoader {
 		
 		new LoadedContainer(container, loadedBoxes, skippedBoxes)
 	}
-	
-//	/**
-//	 * Kevin
-//	 */
-//	def loadLayer(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
-//				
-//		var layer: Kevin.Grid[Int] = List.fill(container.size.depth, container.size.width)(0)
-//
-//		var loadedBoxes: List[LoadedBox] = Nil
-//		var skippedBoxes: List[Box] = Nil
-//		var stopLoading = false
-//		for (box <- boxLoadingOrder) {
-//			if (!stopLoading) {
-//				val maxHeight = container.size.height - box.size.height
-//				val possiblePositions = 
-//					Helpers.findFlatSurfacesKevin(layer, new Dimension2D(box.size.width, box.size.depth), maxHeight)
-//									
-//				if (possiblePositions.isEmpty) {
-//					stopLoading = true
-//					skippedBoxes ::= box
-//				} else {
-//					val firstPosition = possiblePositions(0)
-//					val x = firstPosition._1.x
-//					val z = firstPosition._1.y
-//					val y = firstPosition._2
-//					
-//					loadedBoxes ::= LoadedBox(box, Position3D(x,y,z))
-//					
-//					// adjust layer -> add box height to surface
-//					layer = layer.deepMapRange(x, y, box.size.width, box.size.depth){ h => y + box.size.height }
-//				}
-//			} else {
-//				skippedBoxes ::= box
-//			}
-//		}
-//		
-//		new LoadedContainer(container, loadedBoxes, skippedBoxes)
-//	}
+
 	
 //	def load(container: Container, boxLoadingOrder: List[Box]): LoadedContainer = {
 //				
