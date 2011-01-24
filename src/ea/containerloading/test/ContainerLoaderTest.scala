@@ -31,7 +31,7 @@ class ContainerLoaderTest {
 		val loadingResult = ContainerLoader.loadLayer(container, boxLoadingOrder)
 		println(loadingResult.loadedBoxes.map(b => b.position))
 		assertSame(0, loadingResult.skippedBoxes.length)
-		
+				
 		val boxes: Seq[Bounds] = loadingResult.loadedBoxes.map(box => 
 			new BoundingBox(
 					new Point3d(box.position.x, box.position.y, box.position.z),

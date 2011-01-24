@@ -179,8 +179,8 @@ object Main {
 		val runner = new EvolutionaryContainerLoading(
 			islands = Some(IslandConfig(epochLength = 10, migrantCount = 2)),
 			//islands = None,
-			//new SigmaScaling,
-			new RankSelection,
+			new SigmaScaling,
+			//new RankSelection,
 			populationSize = 40,
 			eliteCount = 0,
 			crossoverProbability = Probability.EVENS,

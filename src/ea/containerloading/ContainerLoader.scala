@@ -31,7 +31,7 @@ object ContainerLoader {
 				
 		val layer = Array.ofDim[Int](container.size.depth, container.size.width)
 		
-		val surfaceFinder = new SurfaceFinder(layer)
+		val surfaceFinder = new SurfaceFinder(layer, isFlat = true)
 
 		var loadedBoxes: List[LoadedBox] = Nil
 		var skippedBoxes: List[Box] = Nil
@@ -42,7 +42,7 @@ object ContainerLoader {
 				val rotatedBoxSize = rotation.rotateDimensions(box.size)
 				val maxHeight = container.size.height - rotatedBoxSize.height
 								
-				var possiblePositions = 
+				val possiblePositions = 
 					surfaceFinder.findFlatSurfaces(rotatedBoxSize.width, rotatedBoxSize.depth, maxHeight)
 				
 				if (possiblePositions.isEmpty) {
