@@ -34,14 +34,14 @@ object Main {
 	
 	def main(args : Array[String]) : Unit = {
 
-//		val problem = new ContainerProblem(
-//			containerSize = Dimension3D(50, 50, 50),
-//			boxSizeFrequencies =
-//				Map(Dimension3D(10,10,12) -> (5,  BoxConstraints(widthVertical = true, depthVertical = true)),
-//			        Dimension3D(20,10,10) -> (15, BoxConstraints(widthVertical = true, depthVertical = true)),
-//			        Dimension3D(30,10,20) -> (10, BoxConstraints(widthVertical = true, depthVertical = true)),
-//			        Dimension3D(50,10,10) -> (5,  BoxConstraints(widthVertical = true, depthVertical = true))
-//			        ))
+		val problem = new ContainerProblem(
+			containerSize = Dimension3D(50, 50, 50),
+			boxSizeFrequencies =
+				Map(Dimension3D(10,10,12) -> (5,  BoxConstraints(widthVertical = true, depthVertical = true)),
+			        Dimension3D(20,10,10) -> (15, BoxConstraints(widthVertical = true, depthVertical = true)),
+			        Dimension3D(30,10,20) -> (10, BoxConstraints(widthVertical = true, depthVertical = true)),
+			        Dimension3D(50,10,10) -> (5,  BoxConstraints(widthVertical = true, depthVertical = true))
+			        ))
 	
 //		val problem = new ContainerProblem(
 //			containerSize = Dimension3D(10, 10, 10),
@@ -49,14 +49,14 @@ object Main {
 //				Map(Dimension3D(10,10,5) -> (2, BoxConstraints(widthVertical = true, depthVertical = true))
 //					))
 			
-		// thpack1 - 1
-		val problem = new ContainerProblem(
-			containerSize = Dimension3D(233, 220, 587),
-			boxSizeFrequencies =
-				Map(Dimension3D(76,30,108) -> (40, BoxConstraints(widthVertical = false, depthVertical = false)),
-			        Dimension3D(43,25,110) -> (33, BoxConstraints(widthVertical = true, depthVertical = false)),
-			        Dimension3D(81,55,92)  -> (39, BoxConstraints(widthVertical = true, depthVertical = true))
-			        ))
+//		// thpack1 - 1
+//		val problem = new ContainerProblem(
+//			containerSize = Dimension3D(233, 220, 587),
+//			boxSizeFrequencies =
+//				Map(Dimension3D(76,30,108) -> (40, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(43,25,110) -> (33, BoxConstraints(widthVertical = true, depthVertical = false)),
+//			        Dimension3D(81,55,92)  -> (39, BoxConstraints(widthVertical = true, depthVertical = true))
+//			        ))
 		
 //		// thpack2 - 1
 //		val problem = new ContainerProblem(
@@ -134,19 +134,58 @@ object Main {
 //			        Dimension3D(350,350,450) -> (17, BoxConstraints(widthVertical = false, depthVertical = false)),
 //			        Dimension3D(200,125,200) -> (23, BoxConstraints(widthVertical = false, depthVertical = false))
 //			        ))
+
+//		// thpack8 - 4
+//		val problem = new ContainerProblem(
+//			containerSize = Dimension3D(2000, 1100, 3000),
+//			boxSizeFrequencies =
+//				Map(Dimension3D(375,200,400) -> (16, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(250,250,400) -> (23, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(300,200,300) -> (17, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(500,500,225) -> (9,  BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(400,275,800) -> (8,  BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(200,275,600) -> (17, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(200,275,900) -> (10, BoxConstraints(widthVertical = false, depthVertical = false))
+//			        ))
+		
+//		// thpack8 - 5
+//		val problem = new ContainerProblem(
+//			containerSize = Dimension3D(2000, 900, 3000),
+//			boxSizeFrequencies =
+//				Map(Dimension3D(375,200,400) -> (35, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(250,225,300) -> (15, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(500,100,500) -> (25, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(250,250,800) -> (10, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(200,200,1500)-> (20, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(200,200,900) -> (15, BoxConstraints(widthVertical = false, depthVertical = false))
+//			        ))
+		
+//		// thpack8 - 6
+//		val problem = new ContainerProblem(
+//			containerSize = Dimension3D(2400, 1000, 3500),
+//			boxSizeFrequencies =
+//				Map(Dimension3D(375,250,400) -> (34, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(275,225,400) -> (37, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(250,125,300) -> (23, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(450,225,500) -> (27, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(275,200,1500)-> (25, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(400,300,600) -> (23, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(200,200,900) -> (14, BoxConstraints(widthVertical = false, depthVertical = false)),
+//			        Dimension3D(350,300,700) -> (17, BoxConstraints(widthVertical = false, depthVertical = false))
+//			        ))
 		
 		val userAbort = new UserAbort
 		
 		val runner = new EvolutionaryContainerLoading(
-			//islands = Some(IslandConfig(epochLength = 50, migrantCount = 5)),
-			islands = None,
-			new SigmaScaling, 
+			islands = Some(IslandConfig(epochLength = 10, migrantCount = 2)),
+			//islands = None,
+			new SigmaScaling,
 			//new RankSelection,
-			populationSize = 50,
+			populationSize = 4,
 			eliteCount = 0,
 			crossoverProbability = Probability.EVENS,
-			new TargetFitness(0.9, true),
-			new GenerationCount(100),
+			//new TargetFitness(0.9, true),
+			new GenerationCount(3),
 			userAbort
 			//termination = new ElapsedTime(1*60*1000)
 			)
@@ -154,11 +193,11 @@ object Main {
 		showAbortWindow(userAbort)
 		
 		val fitnessFormat = new DecimalFormat("0.0000")
-		val meanStdDevFitnessSeries = new YIntervalSeries("Mean Fitness and StdDev")
+		val meanStdDevFitnessSeries = new YIntervalSeries("Mean Fitness with " + '\u03C3')
 		val maxFitnessSeries = new XYSeries("Max Fitness")
 		
-		val island0MeanFitness = new XYSeries("Mean Fitness (Island 0)")
-		val island1MeanFitness = new XYSeries("Mean Fitness (Island 1)")
+		val island0MeanStdDevFitness = new YIntervalSeries("Mean Fitness with " + '\u03C3' + " (Island 0)")
+		val island1MeanStdDevFitness = new YIntervalSeries("Mean Fitness with " + '\u03C3' + " (Island 1)")
 		
 		runner.addListener(popData => {
 				val evoType = if (runner.islands.isDefined) "epoch" else "generation"
@@ -192,8 +231,16 @@ object Main {
 						popData.getElapsedTime / 1000 + "s so far")
 						
 				islandIndex match {
-					case 0 => island0MeanFitness.add(realGenerationNumber, popData.getMeanFitness)
-					case 1 => island1MeanFitness.add(realGenerationNumber, popData.getMeanFitness)
+					case 0 => island0MeanStdDevFitness.add(
+								realGenerationNumber,
+								popData.getMeanFitness,
+								popData.getMeanFitness - popData.getFitnessStandardDeviation,
+								popData.getMeanFitness + popData.getFitnessStandardDeviation)
+					case 1 => island1MeanStdDevFitness.add(
+								realGenerationNumber,
+								popData.getMeanFitness,
+								popData.getMeanFitness - popData.getFitnessStandardDeviation,
+								popData.getMeanFitness + popData.getFitnessStandardDeviation)
 				}
 		})
 		
@@ -203,14 +250,15 @@ object Main {
 		meanStdDevFitnessData.addSeries(meanStdDevFitnessSeries)
 		val maxFitnessData = new XYSeriesCollection(maxFitnessSeries)
 		val chart = createStatisticalXYLineChart(
-				"Container size: " + problem.container.size + ", boxes: " + problem.boxes.size,
+				null, //"Container size: " + problem.container.size + ", boxes: " + problem.boxes.size,
 				if (runner.islands.isDefined) "Epoch" else "Generation",
 				"Fitness",
 				meanStdDevFitnessData, maxFitnessData,
 				if (runner.islands.isDefined) Some("Generation") else None,
 				if (runner.islands.isDefined) { 
-					val c = new XYSeriesCollection(island0MeanFitness)
-					c.addSeries(island1MeanFitness)
+					val c = new YIntervalSeriesCollection
+					c.addSeries(island0MeanStdDevFitness)
+					c.addSeries(island1MeanStdDevFitness)
 					Some(c)
 				} else None)
 		val chartFrame = new org.jfree.chart.ChartFrame("Fitness", chart)
@@ -245,27 +293,34 @@ object Main {
 		frame.setVisible(true)
 	}
 	
-	private def createStatisticalXYLineChart(title: String, xLabel: String, yLabel: String, data: IntervalXYDataset, data2: XYDataset, xLabel2: Option[String], data3: Option[XYDataset]): JFreeChart = {
+	private def createStatisticalXYLineChart(title: String, xLabel: String, yLabel: String, data: IntervalXYDataset, data2: XYDataset, xLabel2: Option[String], data3: Option[IntervalXYDataset]): JFreeChart = {
 		
 		val xAxis = new org.jfree.chart.axis.NumberAxis(xLabel)
 		xAxis.setStandardTickUnits(org.jfree.chart.axis.NumberAxis.createIntegerTickUnits)
 				
 		val renderer = new org.jfree.chart.renderer.xy.DeviationRenderer(true, false)
 		val renderer2 = new org.jfree.chart.renderer.xy.XYLineAndShapeRenderer(true, false)
-		val leftPlot = new org.jfree.chart.plot.XYPlot(data, xAxis, null, renderer)
-		leftPlot.setDataset(1, data2)
-		leftPlot.setRenderer(1, renderer2)
+		val leftPlot = new org.jfree.chart.plot.XYPlot(data2, xAxis, null, renderer2)
+		leftPlot.setDataset(1, data)
+		leftPlot.setRenderer(1, renderer)
 		leftPlot.setOrientation(org.jfree.chart.plot.PlotOrientation.VERTICAL)
+		
+		renderer.setAutoPopulateSeriesPaint(false)
+		renderer.setSeriesPaint(0, java.awt.Color.BLACK)
+		renderer2.setAutoPopulateSeriesPaint(false)
+		renderer2.setSeriesPaint(0, java.awt.Color.GREEN)
 		
 		val yAxis = new org.jfree.chart.axis.NumberAxis(yLabel)
 		val combinedPlot = new org.jfree.chart.plot.CombinedRangeXYPlot(yAxis)
 		combinedPlot.add(leftPlot, 1)
 		
 		if (xLabel2.isDefined && data3.isDefined) {
-			val renderer3 = new org.jfree.chart.renderer.xy.XYLineAndShapeRenderer(true, false)
+			val renderer3 = new org.jfree.chart.renderer.xy.DeviationRenderer(true, false)
 			renderer3.setAutoPopulateSeriesPaint(false)
-			renderer3.setSeriesPaint(0, java.awt.Color.DARK_GRAY)
-			renderer3.setSeriesPaint(1, java.awt.Color.MAGENTA)
+			renderer3.setSeriesPaint(0, java.awt.Color.RED)
+			renderer3.setSeriesPaint(1, java.awt.Color.BLUE)
+			renderer3.setSeriesFillPaint(0, java.awt.Color.RED)
+			renderer3.setSeriesFillPaint(1, java.awt.Color.BLUE)
 						
 			val xAxis = new org.jfree.chart.axis.NumberAxis(xLabel2.get)
 			xAxis.setStandardTickUnits(org.jfree.chart.axis.NumberAxis.createIntegerTickUnits)
@@ -273,10 +328,12 @@ object Main {
 			rightPlot.setOrientation(org.jfree.chart.plot.PlotOrientation.VERTICAL)
 			combinedPlot.add(rightPlot, 2)
 		}
-		
+
 		val chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, combinedPlot, true)
 		val theme = new org.jfree.chart.StandardChartTheme("JFree")
 		theme.apply(chart)
+		val font = new java.awt.Font("Arial Unicode MS", java.awt.Font.PLAIN, 12);
+		chart.getLegend.setItemFont(font)
 		chart
 	}
 	
@@ -306,7 +363,15 @@ object Main {
 		frame.getChartPanel.getPopupMenu.add(savePdfItem)
 	}
 	
-	private def saveChartAsPDF(file: File, chart: JFreeChart, size: Dimension2D, mapper: FontMapper = new DefaultFontMapper) = {
+	private def saveChartAsPDF(file: File, chart: JFreeChart, size: Dimension2D) = {
+		val mapper = new DefaultFontMapper
+		val jreBinPath = System.getProperty("sun.boot.library.path")
+		val jreFontsPath = jreBinPath.substring(0, jreBinPath.size - 4) + "\\lib\\fonts" 
+		mapper.insertDirectory(jreFontsPath)
+		val pp = mapper.getBaseFontParameters("Arial Unicode MS")
+		if (pp != null) {
+			pp.encoding = com.lowagie.text.pdf.BaseFont.IDENTITY_H
+		}
 		val out = new BufferedOutputStream(new FileOutputStream(file))
 		val pagesize = new Rectangle(size.width, size.height)
 		val document = new Document(pagesize, 50, 50, 50, 50)
