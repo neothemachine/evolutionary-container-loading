@@ -99,7 +99,7 @@ object ContainerLoader {
 					loadedBoxes ::= LoadedBox(box, rotation, Position3D(x,y,z))
 
 					surfaceFinder.updateArea(
-							x, z, rotatedBoxSize.width, rotatedBoxSize.depth, y + box.size.height)
+							x, z, rotatedBoxSize.width, rotatedBoxSize.depth, y + rotatedBoxSize.height)
 				}
 			} else {
 				skippedBoxes ::= box
