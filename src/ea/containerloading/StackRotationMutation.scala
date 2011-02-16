@@ -7,26 +7,36 @@ import org.uncommons.watchmaker.framework.EvolutionaryOperator
 import org.uncommons.maths.number.{NumberGenerator, ConstantGenerator}
 import org.uncommons.maths.random.Probability
 
-class RotationMutation(mutationProbability: NumberGenerator[Probability]) extends EvolutionaryOperator[jList[(Box, BoxRotation)]] {
-
+/**
+ * Selects a random box and rotates it and all boxes of the same dimension/type.
+ * 
+ * should probably be better called TypeRotationMutation
+*/
+class StackRotationMutation(mutationProbability: NumberGenerator[Probability]) extends EvolutionaryOperator[jList[(Box, BoxRotation)]] {
+	
 	def this(mutationProbability: Probability) = this(new ConstantGenerator(mutationProbability))
 	
 	def apply(selectedCandidates: jList[jList[(Box, BoxRotation)]], rng: Random): jList[jList[(Box, BoxRotation)]] = {
 		
 		val result = new jArrayList[jList[(Box, BoxRotation)]](selectedCandidates.size)
 		for (candidate <- selectedCandidates) {
+			
 			val newCandidate = new jArrayList(candidate)
 			
 			if (mutationProbability.nextValue.nextEvent(rng)) {
-				// mutate just one box's rotation for now
-				val boxIndex = rng.nextInt(newCandidate.size)
-				val box = newCandidate.get(boxIndex)._1
-				
+				val box = candidate.get(rng.nextInt(candidate.size))._1
+							
 				val rotationsCount = box.constraints.allowedRotations.size
-				val rotationIndex = rng.nextInt(rotationsCount)
-				val newRotation = box.constraints.allowedRotations(rotationIndex)
-	
-				newCandidate.set(boxIndex, (box, newRotation))
+				val newRotation = box.constraints.allowedRotations(rng.nextInt(rotationsCount))
+				
+				var index = 0
+				while (index <= candidate.length - 1) {
+					val boxToTest = candidate.get(index)._1
+					if (boxToTest.size equals box.size) {
+						newCandidate.set(index, (boxToTest, newRotation))	
+					}
+					index += 1
+				}
 			}
 			
 			result.add(newCandidate)
@@ -34,5 +44,4 @@ class RotationMutation(mutationProbability: NumberGenerator[Probability]) extend
 		
 		result
 	}
-	
 }

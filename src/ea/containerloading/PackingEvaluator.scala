@@ -11,7 +11,7 @@ class PackingEvaluator(problem: ContainerProblem) extends FitnessEvaluator[jList
 		val loadingResult = ContainerLoader.loadLayer(problem.container, candidate)
 				
 		// calculate and return space utilization ratio
-		val spaceUsed = loadingResult.loadedBoxes.map(loadedBox => loadedBox.box.size.volume).sum
+		val spaceUsed = loadingResult.loadedBoxes.map(_.box.size.volume).sum
 		val ratio = (spaceUsed: Double) / (problem.container.size.volume: Double)
 		return ratio
 	}
