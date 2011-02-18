@@ -8,9 +8,10 @@ import org.uncommons.maths.number.{NumberGenerator, ConstantGenerator}
 import org.uncommons.maths.random.Probability
 
 /**
+ * Mutation: Typ-Rotation
+ * 
  * Selects a random box and rotates it and all boxes of the same dimension/type.
  * 
- * should probably be better called TypeRotationMutation
 */
 class StackRotationMutation(mutationProbability: NumberGenerator[Probability]) extends EvolutionaryOperator[jList[(Box, BoxRotation)]] {
 	

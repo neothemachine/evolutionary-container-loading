@@ -25,6 +25,9 @@ import org.uncommons.maths.number.NumberGenerator;
 import org.uncommons.maths.random.Probability;
 
 /**
+ * Rekombination: PMX mit linkem Element = 0
+ * 
+ * 
  * Implements ordered cross-over between arbitrary lists.  The algorithm is
  * the Partially Mapped Cross-over (PMX) algorithm.
  * @param <T> The component type of the lists that are combined. 

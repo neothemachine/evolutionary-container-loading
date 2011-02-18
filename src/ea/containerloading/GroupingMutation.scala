@@ -7,6 +7,9 @@ import org.uncommons.watchmaker.framework.EvolutionaryOperator
 import org.uncommons.maths.number.{NumberGenerator, ConstantGenerator}
 import org.uncommons.maths.random.Probability
 
+/**
+ * Mutation: Clusterbildung
+ */
 class GroupingMutation(mutationProbability: NumberGenerator[Probability]) extends EvolutionaryOperator[jList[(Box, BoxRotation)]] {
 
 	def this(mutationProbability: Probability) = this(new ConstantGenerator(mutationProbability))
